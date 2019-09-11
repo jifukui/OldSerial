@@ -1,0 +1,117 @@
+﻿.
+│  .babelrc
+│  .editorconfig
+│  .gitignore
+│  .postcssrc.js
+│  index.html
+│  list.txt
+│  Makefile
+│  package-lock.json
+│  package.json
+│  README.md
+│  webdebug.html
+│  
+├─build							//项目构建脚本文件夹
+│      build.js
+│      check-versions.js
+│      logo.png
+│      utils.js
+│      vue-loader.conf.js
+│      webpack.base.conf.js
+│      webpack.dev.conf.js
+│      webpack.prod.conf.js
+│      
+├─config						//项目构建配置文件夹
+│      dev.env.js
+│      index.js
+│      prod.env.js
+│      test.env.js
+│      
+├─dist							//项目目标文件夹
+│  │  index.html				//项目目标起始html		
+│  │  
+│  └─static						//项目最终静态文件文件夹
+│      ├─css					//项目最终文件CSS文件夹
+│      │      app.4320f809d957d8c99a867477efebc73d.css
+│      │      app.4320f809d957d8c99a867477efebc73d.css.map
+│      │      
+│      └─js						//项目最终文件js文件夹
+│              0.bce606f272d29a533ca5.js
+│              0.bce606f272d29a533ca5.js.map
+│              1.fcdece5c35dff4460f57.js
+│              1.fcdece5c35dff4460f57.js.map
+│              2.b2bdca0232f58e06cb59.js
+│              2.b2bdca0232f58e06cb59.js.map
+│              3.7ee82e769565976a53f2.js
+│              3.7ee82e769565976a53f2.js.map
+│              app.fd645f23d5d4d949a3f4.js
+│              app.fd645f23d5d4d949a3f4.js.map
+│              manifest.2e31b4a588a68f0403cd.js
+│              manifest.2e31b4a588a68f0403cd.js.map
+│              vendor.d8d25e33d3e1ce89fbc1.js
+│              vendor.d8d25e33d3e1ce89fbc1.js.map
+│              
+├─node_modules							//项目依赖工具包文件夹
+│          
+├─src									//项目源文件文件夹
+│  │  App.vue							
+│  │  main.js
+│  │  
+│  ├─assets								//资源文件夹
+│  │      logo.png
+│  │      
+│  ├─components							//组件文件夹
+│  │      header.vue
+│  │      HelloWorld.vue
+│  │      navleft.vue
+│  │      
+│  ├─js									//js文件夹
+│  │      liguoConfig.js
+│  │      
+│  ├─pages								//页面级组件文件夹
+│  │  │  about.vue
+│  │  │  configure.vue
+│  │  │  indexHtml.vue
+│  │  │  switchContent.vue
+│  │  │  
+│  │  └─switchView						//页面内容级文件夹
+│  │          switchView.vue
+│  │          
+│  ├─router								//路由文件夹
+│  │      index.js
+│  │      
+│  └─style								//样式文件夹
+│      │  common.css
+│      │  
+│      └─fontIcon
+│              demo.css
+│              demo_fontclass.html
+│              demo_symbol.html
+│              demo_unicode.html
+│              iconfont.css
+│              iconfont.eot
+│              iconfont.js
+│              iconfont.svg
+│              iconfont.ttf
+│              iconfont.woff
+│              		
+├─static							//静态文件文件夹
+│      .gitkeep
+│      
+└─test								//测试脚本文件夹
+    ├─e2e
+    │  │  nightwatch.conf.js
+    │  │  runner.js
+    │  │  
+    │  ├─custom-assertions
+    │  │      elementCount.js
+    │  │      
+    │  └─specs
+    │          test.js
+    │          
+    └─unit
+        │  .eslintrc
+        │  
+        └─specs
+                HelloWorld.spec.js
+                
