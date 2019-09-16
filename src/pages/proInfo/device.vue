@@ -543,7 +543,8 @@ export default {
             if (tcp != that.oldTcpVal0) {
               setInfo.tcp = Number(tcp);
             }
-            if (udp != that.oldUdpVal0) {
+            if (udp != that.oldUdpVal0) 
+            {
               setInfo.udp = Number(udp);
             }
             if (
@@ -616,9 +617,13 @@ export default {
             this.$axios
               .post("/cgi-bin/ligline.cgi", aoData)
               .then(function(response) {
-                if (response.data.status == "SUCCESS") {
-                } else if (response.data.status == "ERROR") {
-                  if (window.setTimeoutSetIp) {
+                if (response.data.status == "SUCCESS") 
+                {
+                } 
+                else if (response.data.status == "ERROR") 
+                {
+                  if (window.setTimeoutSetIp) 
+                  {
                     window.clearTimeout(window.setTimeoutSetIp);
                   }
                   that.$alert(response.data.error, "Prompt information", {

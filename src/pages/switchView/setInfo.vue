@@ -116,7 +116,8 @@ export default {
   },
   watch: {
     portSetInfo: {
-      handler(newValue, oldValue) {
+      handler(newValue, oldValue) 
+      {
         console.log(this.portSetInfo);
         if(this.portSetInfo.Info.length==0){
           this.status=false

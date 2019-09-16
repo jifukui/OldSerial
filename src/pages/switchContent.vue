@@ -44,9 +44,6 @@ export default {
     height: 100%;
 }
 .content {
-    /* display: flex;
-    justify-content: space-between;
-    flex-direction: row; */
     height: 100%;
 }
 .contentLoading {
@@ -61,8 +58,6 @@ export default {
     width: auto;
     height: 100%;
     overflow: auto;
-    /* overflow-y: scroll;
-    overflow-x: scroll; */
     -webkit-overflow-scrolling: auto;
     position: static;
 }

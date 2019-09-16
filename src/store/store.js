@@ -18,7 +18,9 @@ const state = {
   e: 0,
   f: 18,
   g: 0,
-  h: 17
+  h: 17,
+  VideoSelectAll:false,
+  VideoALLChecked:[]
 }
 
 

@@ -47,9 +47,6 @@
                   @click="openSet(items.portIndex,'Out',items.title,items.OnlineStatus)"
                   >{{ items.title }}</span
                 >
-                <!-- @click="selectPortInfo(items.index)" -->
-
-
               </div>
             </div>
           </div>
@@ -97,7 +94,7 @@
             >
               <input
                 type="checkbox"
-                :checked="items.switchSelect == true ? true : false"
+                :checked="items.switchSelect"
                 :value="items.indexTitle"
                 @change="clickSelect(items.switchSelect, items.indexTitle)"
               />
@@ -125,7 +122,6 @@
                 @click="openSet(items.portIndex,'In',items.title,items.OnlineStatus)"
                 >{{ items.title }}</span
               >
-              <!-- @click="selectPortInfo(items.index)" -->
             </div>
           </div>
           <div class="table_cell1"></div>
@@ -236,140 +232,6 @@
         </p>
       </div>
       <div v-if="openSetInfo" class="setInfo">
-        <!-- <div class="setInfo_box">
-          <div class="title">Port Information {{title}}</div>
-          <div class="boxContent">
-            <table class="boxC">
-              <tr
-                v-for="(item,index) in staticData"
-                :key="index"
-                class="staticTr">
-                <td width="35%">{{item.id}}:</td>
-                <td width="65%">{{item.value}}</td>
-              </tr>
-              <tr 
-                v-for="(item, index) in setData" 
-                :key="index"
-                class="staticTr">
-                <td width="35%" v-if="item.type === 'static'">{{ item.id }}:</td>
-                <td width="65%" v-if="item.type === 'static'">
-                  {{ item.value }}<span v-show="item.id == 'Temperature'"> ℃</span
-                  ><span v-show="item.id == 'Voltage'"> V</span>
-                </td>
-                <td width="35%" v-if="item.type === 'staticList'">{{ item.id }}:</td>
-                <td width="65%" v-if="item.type === 'staticList'">
-                  <span
-                    v-for="(items, index) in item.value"
-                    :key="index"
-                    v-show="items.value == item.oldvalue"
-                    >{{ items.name }}</span
-                  >
-                </td>
-                <td width="35%" v-if="item.type === 'list'">{{ item.id }}:</td>
-                <td width="65%" v-if="item.type === 'list'">
-                  <select v-model="item.lastervalue" @change="listchange(item,index)">
-                    <option
-                      v-for="(item, index) in item.value"
-                      :key="index"
-                      :value="item.value"
-                      >{{ item.name }}</option
-                    >
-                  </select>
-                </td>
-                <td width="35%" v-if="item.type === 'slider'">{{ item.id }}:</td>
-                <td width="65%" v-if="item.type === 'slider'">
-                  <div class="block fl" style="width:85%">
-                    <el-slider
-                      style="width:90%"
-                      :min="item.value.min"
-                      :max="item.value.max"
-                      @change="sliderchange(item,index)"
-                      v-model="item.lastervalue"
-                      input-size="mini"
-                    ></el-slider>
-                  </div>
-                  <input
-                    style="width:12%"
-                    v-model="item.lastervalue"
-                    type="text"
-                    @keyup="silderInputInput(item,index)"
-                    @change="silderInputChange(item,index)"
-                  />
-                </td>
-                <td width="35%" v-if="item.type === 'switch'">{{ item.id }}:</td>
-                <td width="65%" v-if="item.type === 'switch'">
-                  <el-switch
-                    v-model="item.lastervalue"
-                    active-color="#13ce66"
-                    inactive-color="#ccc"
-                    :active-text="item.value.on_text"
-                    :inactive-text="item.value.off_text"
-                  ></el-switch>
-                </td>
-                <td width="35%" v-if="item.type === 'inputOnlySetNum'">{{ item.id }}:</td>
-                <td width="65%" v-if="item.type === 'inputOnlySetNum'">
-                  <input
-                    type="text"
-                    v-text="item.oldvalue"
-                    v-model="item.lastervalue"
-                    @blur="inpNum(item, item.value.min, item.value.max)"
-                  />
-                </td>
-                <td width="35%" v-if="item.type === 'inputNum'">{{ item.id }}:</td>
-                <td width="65%" v-if="item.type === 'inputNum'">
-                  <input
-                    type="text"
-                    v-text="item.oldvalue"
-                    v-model="item.lastervalue"
-                    @blur="inpNum(item,item.value.min,item.value.max)"
-                  />
-                </td>
-                <td width="35%" v-if="item.type === 'buttonR'">{{ item.id }}:</td>
-                <td width="65%" v-if="item.type === 'buttonR'">
-                  <el-button
-                    class="btn"
-                    type="primary"
-                    @click="clickBtn(isActive, 1)">
-                      Repower
-                  </el-button>
-                  <el-button
-                    class="btn"
-                    type="primary"
-                    @click="clickBtn(isActive, 2)">
-                      Factory
-                  </el-button>
-                </td>
-              </tr>
-              <tr v-show="setData.length!=0">
-                <td width="35%" style="font-size:16px;">Refresh:</td>
-                <td width="65%">
-                  <el-button 
-                    class="btn" 
-                    type="primary" 
-                    @click="PortRefresh" 
-                    >Refresh</el-button>
-                </td>
-              </tr>
-            </table>
-          </div>
-          <div>
-            <el-button
-              class="isOk"
-              type="primary"
-              value="OK"
-              :disabled= !HaveChange
-              @click="saveBtn(isActive)">
-              Save
-            </el-button>
-            <el-button
-              class="isCancel"
-              type="primary"
-              value="Cancel"
-              @click="CancelBtn">
-              Exit
-            </el-button>
-          </div>
-        </div> -->
         <SetInfo :portSetInfo="setInfo" @closePage="CancelShow"></SetInfo>
       </div>
     </div>
@@ -399,8 +261,8 @@ export default {
       bg_index2: null,
       screenWidth: document.body.clientWidth,
       aoDataSelected: [],
-      ckeckVal: false,
-      isSelectAll: false,
+      ckeckVal: this.$store.state.VideoSelectAll,
+      isSelectAll: this.$store.state.VideoSelectAll,
       setInfo: "",
       portSetInfo: "",
       switchLoading: false
@@ -416,6 +278,10 @@ export default {
           that.timer = false;
         }, 400);
       }
+    },
+    isSelectAll(val)
+    {
+      this.$store.state.VideoSelectAll=val;
     }
   },
   computed: {
@@ -443,86 +309,89 @@ export default {
     h() {
       return this.$store.state.h;
     },
-    isrightHidden() {
-      if (this.$store.state.b < this.aoDataOut.length) {
+    isrightHidden() 
+    {
+      if (this.$store.state.b < this.aoDataOut.length) 
+      {
         return false;
-      } else {
+      } 
+      else 
+      {
         return true;
       }
     },
     isleftHidden() {
-      if (this.$store.state.a > 0) {
+      if (this.$store.state.a > 0) 
+      {
         return false;
-      } else {
+      } 
+      else 
+      {
         return true;
       }
     },
-    istopHidden() {
-      if (this.$store.state.e > 0) {
+    istopHidden() 
+    {
+      if (this.$store.state.e > 0) 
+      {
         return false;
-      } else {
+      } 
+      else 
+      {
         return true;
       }
     },
-    isdownHidden() {
-      if (this.$store.state.f < this.aoDataLength) {
+    isdownHidden() 
+    {
+      if (this.$store.state.f < this.aoDataLength) 
+      {
         return false;
-      } else {
+      } 
+      else 
+      {
         return true;
       }
     }
   },
   methods: {
     //点击全选按钮
-    clickMe() {
+    clickMe() 
+    {
+      console.log("全切");
+      //console.log("The data is "+JSON.stringify(this.aoDataOut));
       let that = this;
-      if (that.ckeckVal) {
-        if (window.myInterval) {
-          window.clearInterval(window.myInterval);
-        }
-        that.isSelectAll = true;
-        for (let i = 0; i < that.aoData.length; i++) {
-          that.aoData[i].link_status = "false";
-          for (let j = 0; j < that.aoData[i].sourceGroup.length; j++) {
-            that.aoData[i].sourceGroup[j].link_status = "no";
-          }
-        }
-        for (let i = 0; i < that.aoDataOut.length; i++) {
-          that.aoDataOut[i].switchSelect = true;
-        }
-      } else {
+      if (that.ckeckVal) 
+      {
+        that.isSelectAll = true;  
+      } 
+      else 
+      {
         that.isSelectAll = false;
-        for (let i = 0; i < that.aoData.length; i++) {
-          that.aoData[i].link_status = "false";
-          for (let j = 0; j < that.aoData[i].sourceGroup.length; j++) {
-            that.aoData[i].sourceGroup[j].link_status = "false";
-          }
-        }
-        that.getportInfo();
-        window.myInterval = setInterval(function() {
-          that.getportInfo();
-        }, 3000);
       }
+      that.getportNumInfo();
     },
     //全选模式内的选择按钮
     clickSelect(ckeckValue, index) {
       let that = this;
-      for (let i = 0; i < that.aoData.length; i++) {
-        that.aoData[i].link_status = "false";
-        for (let j = 0; j < that.aoData[i].sourceGroup.length; j++) {
-          that.aoData[i].sourceGroup[j].link_status = "no";
-        }
-      }
-      if (ckeckValue == true) {
-        for (let i = 0; i < this.aoDataOut.length; i++) {
-          if (this.aoDataOut[i].indexTitle == index) {
+      if (ckeckValue == true) 
+      {
+        for (let i = 0; i < this.aoDataOut.length; i++) 
+        {
+          if (this.aoDataOut[i].indexTitle == index) 
+          {
             this.aoDataOut[i].switchSelect = false;
+            this.$store.state.VideoALLChecked[i]=false;
           }
         }
-      } else {
-        for (let i = 0; i < this.aoDataOut.length; i++) {
-          if (this.aoDataOut[i].indexTitle == index) {
+      } 
+      else 
+      {
+        for (let i = 0; i < this.aoDataOut.length; i++) 
+        {
+          if (this.aoDataOut[i].indexTitle == index) 
+          {
             this.aoDataOut[i].switchSelect = true;
+            this.$store.state.VideoALLChecked[i]=true;
           }
         }
       }
@@ -541,7 +410,7 @@ export default {
         .post("/cgi-bin/ligline.cgi", aoData)
         .then(function(response) {
           if (response.data.status == "SUCCESS") {
-            that.getOnline();
+            //that.getOnline();
           } else if (response.data.status == "ERROR") {
           }
         })
@@ -556,15 +425,19 @@ export default {
       let routingData = "";
       let that = this;
       that.switchLoading = true;
-      for (let i = 0; i < that.aoData.length; i++) {
+      for (let i = 0; i < that.aoData.length; i++) 
+      {
         that.aoData[i].link_status = "false";
-        for (let j = 0; j < that.aoData[i].sourceGroup.length; j++) {
+        for (let j = 0; j < that.aoData[i].sourceGroup.length; j++) 
+        {
           that.aoData[i].sourceGroup[j].link_status = "no";
         }
       }
       that.$set(items, "link_status", "true");
-      for (let i = 0; i < this.aoDataOut.length; i++) {
-        if (this.aoDataOut[i].switchSelect == true) {
+      for (let i = 0; i < this.aoDataOut.length; i++) 
+      {
+        if (this.aoDataOut[i].switchSelect == true) 
+        {
           aoOut.push(this.aoDataOut[i].indexTitle);
           routingData = {
             Outport: aoOut,
@@ -579,19 +452,27 @@ export default {
       this.$axios
         .post("/cgi-bin/ligline.cgi", aoData)
         .then(function(response) {
-          if (response.data.status == "SUCCESS") {
-            for (let i = 0; i < that.aoData.length; i++) {
+          if (response.data.status == "SUCCESS") 
+          {
+            for (let i = 0; i < that.aoData.length; i++) 
+            {
               that.aoData[i].link_status = "false";
-              for (let j = 0; j < that.aoData[i].sourceGroup.length; j++) {
+              for (let j = 0; j < that.aoData[i].sourceGroup.length; j++) 
+              {
                 that.aoData[i].sourceGroup[j].link_status = "no";
               }
             }
-            for (let o = 0; o < that.aoData.length; o++) {
-              if (that.aoData[o].indexTitle == index) {
+            for (let o = 0; o < that.aoData.length; o++) 
+            {
+              if (that.aoData[o].indexTitle == index) 
+              {
                 that.aoData[o].link_status = "true";
-                for (let k = 0; k < that.aoData[o].sourceGroup.length; k++) {
-                  for (let w = 0; w < aoOut.length; w++) {
-                    if (that.aoData[o].sourceGroup[k].indexTitle == aoOut[w]) {
+                for (let k = 0; k < that.aoData[o].sourceGroup.length; k++) 
+                {
+                  for (let w = 0; w < aoOut.length; w++) 
+                  {
+                    if (that.aoData[o].sourceGroup[k].indexTitle == aoOut[w]) 
+                    {
                       that.aoData[o].sourceGroup[k].link_status = "true";
                     }
                   }
@@ -599,7 +480,9 @@ export default {
               }
             }
             that.switchLoading = false;
-          } else if (response.data.status == "ERROR") {
+          } 
+          else if (response.data.status == "ERROR") 
+          {
             that.switchLoading = false;
           }
         })
@@ -608,11 +491,16 @@ export default {
           console.log(error);
         });
     },
-    showInfo(index, item, isPosition) {
-      if (this.screenWidth > 1025) {
-        if (isPosition == "up") {
+    showInfo(index, item, isPosition) 
+    {
+      if (this.screenWidth > 1025) 
+      {
+        if (isPosition == "up") 
+        {
           this.nowIndex1 = index;
-        } else {
+        } 
+        else 
+        {
           this.nowIndex = index;
         }
       }
@@ -625,40 +513,54 @@ export default {
     },
     // 端口号点击事件（返回数据）
     openSet(index, dir, title, status) {
-      if (title == "CLOSE") {
+      if (title == "CLOSE") 
+      {
         return false;
       }
-      if (status == true) {
+      if (status == true) 
+      {
         let that = this;
         let saveDir = "";
         this.$axios
           .get("/configuration.json")
-          .then(response => {
+          .then(response => 
+          {
             let listInfo = response.data.data.port;
             let cardInfo = response.data.data.card;
             let portNumber = that.$store.state.portNumber;
             console.log(listInfo);
-            if (dir == "In") {
+            if (dir == "In") 
+            {
               saveDir = 0;
-              for (let i = 0; i < listInfo.in.length; i++) {
+              for (let i = 0; i < listInfo.in.length; i++) 
+              {
                 if (listInfo.in[i].index == index) {
-                  if (portNumber == 16) {
-                    for (let j = 0; j < cardInfo.length; j++) {
-                      if (Math.ceil(index / 2) == cardInfo[j].slot) {
+                  if (portNumber == 16) 
+                  {
+                    for (let j = 0; j < cardInfo.length; j++) 
+                    {
+                      if (Math.ceil(index / 2) == cardInfo[j].slot) 
+                      {
                         console.log(cardInfo[j].name);
                         listInfo.in[i].portType = cardInfo[j].name;
                       }
                     }
-                  } else if (portNumber == 32) {
-                    for (let j = 0; j < cardInfo.length; j++) {
-                      if (Math.ceil(index / 4) == cardInfo[j].slot) {
+                  } else if (portNumber == 32) 
+                  {
+                    for (let j = 0; j < cardInfo.length; j++) 
+                    {
+                      if (Math.ceil(index / 4) == cardInfo[j].slot) 
+                      {
                         console.log(cardInfo[j].name);
                         listInfo.in[i].portType = cardInfo[j].name;
                       }
                     }
-                  } else if (portNumber == 64) {
-                    for (let j = 0; j < cardInfo.length; j++) {
-                      if (Math.ceil(index / 8) == cardInfo[j].slot) {
+                  } else if (portNumber == 64) 
+                  {
+                    for (let j = 0; j < cardInfo.length; j++) 
+                    {
+                      if (Math.ceil(index / 8) == cardInfo[j].slot) 
+                      {
                         console.log(cardInfo[j].name);
                         listInfo.in[i].portType = cardInfo[j].name;
                       }
@@ -667,27 +569,42 @@ export default {
                   that.selectPortInfo(listInfo.in[i], saveDir, title, index);
                 }
               }
-            } else if (dir == "Out") {
+            } 
+            else if (dir == "Out") 
+            {
               saveDir = 1;
-              for (let i = 0; i < listInfo.out.length; i++) {
-                if (listInfo.out[i].index == index) {
-                  if (portNumber == 16) {
-                    for (let j = 0; j < cardInfo.length; j++) {
-                      if (Math.ceil(index / 2) == cardInfo[j].slot) {
+              for (let i = 0; i < listInfo.out.length; i++) 
+              {
+                if (listInfo.out[i].index == index) 
+                {
+                  if (portNumber == 16) 
+                  {
+                    for (let j = 0; j < cardInfo.length; j++) 
+                    {
+                      if (Math.ceil(index / 2) == cardInfo[j].slot) 
+                      {
                         console.log(cardInfo[j].name);
                         listInfo.out[i].portType = cardInfo[j].name;
                       }
                     }
-                  } else if (portNumber == 32) {
-                    for (let j = 0; j < cardInfo.length; j++) {
-                      if (Math.ceil(index / 4) == cardInfo[j].slot) {
+                  } 
+                  else if (portNumber == 32) 
+                  {
+                    for (let j = 0; j < cardInfo.length; j++) 
+                    {
+                      if (Math.ceil(index / 4) == cardInfo[j].slot) 
+                      {
                         console.log(cardInfo[j].name);
                         listInfo.out[i].portType = cardInfo[j].name;
                       }
                     }
-                  } else if (portNumber == 64) {
-                    for (let j = 0; j < cardInfo.length; j++) {
-                      if (Math.ceil(index / 8) == cardInfo[j].slot) {
+                  } 
+                  else if (portNumber == 64) 
+                  {
+                    for (let j = 0; j < cardInfo.length; j++) 
+                    {
+                      if (Math.ceil(index / 8) == cardInfo[j].slot) 
+                      {
                         console.log(cardInfo[j].name);
                         listInfo.out[i].portType = cardInfo[j].name;
                       }
@@ -701,7 +618,9 @@ export default {
           .catch(function(error) {
             console.log(error);
           });
-      } else {
+      } 
+      else 
+      {
         this.portSetInfo = {};
         this.portSetInfo.title = JSON.parse(JSON.stringify(title));
         this.portSetInfo.Info = [];
@@ -873,127 +792,192 @@ export default {
       this.openSetInfo = false;
       this.showBtn = true;
     },
-    //获取端口信息和切换状态
+    //获取端口的初始化信息
     getProInfo() {
+      console.log("获取端口信息");
       let that = this;
       let portNumber = that.$store.state.portNumber;
-      if (portNumber == 16) {
+      if (portNumber == 16) 
+      {
         that.$axios(that.$indexJsonUrl).then(response => {
           that.allPortInfo = response;
         });
-      } else if (portNumber == 32) {
+      } 
+      else if (portNumber == 32) 
+      {
         that.$axios(that.$indexJsonUrl32).then(response => {
           that.allPortInfo = response;
         });
-      } else if (portNumber == 64) {
+      } 
+      else if (portNumber == 64) 
+      {
         that.$axios(that.$indexJsonUrl64).then(response => {
           that.allPortInfo = response;
         });
       }
+
     },
-    getportNumInfo() {
-      if (this.isSelectAll == false) {
-        let proVInfo = this.allPortInfo.data.Port;
-        let sourceGroup = [];
-        for (let j = 0; j < proVInfo.length; j++) {
-          for (let i = 0; i < this.onlineInfo.length; i++) {
-            if (proVInfo[j].portIndex == this.onlineInfo[i].PortIndex) {
-              proVInfo[j].OnlineStatus = this.onlineInfo[i].OnlineStatus;
-            }
-          }
-          for (let i = 0; i < this.portInfo.length; i++) {
-            if (proVInfo[j].portIndex == this.portInfo[i].PortIndex) {
-              proVInfo[j].status = this.portInfo[i].Linkstatus;
-            }
-          }
-          for (let i = 0; i < this.videoRouting.length; i++) {
-            if (proVInfo[j].portIndex == this.videoRouting[i].OutPort) {
-              proVInfo[j].switch = this.videoRouting[i].InPort;
-            }
-          }
-          if (proVInfo[j].Dir == "Out") {
-            sourceGroup.push(proVInfo[j]);
-          }
-        }
-        let sourceGroup1 = [
+    /**处理端口的状态信息 */
+    getportNumInfo() 
+    {
+      //console.log(this.allPortInfo.data);
+      if(typeof this.allPortInfo.data=='undefined')
+      {
+        return false;
+      }
+      let proVInfo = this.allPortInfo.data.Port;
+      let sourceGroup = [];
+      let i=0;
+      for (let j = 0; j < proVInfo.length; j++,i++) 
+      {
+        for (let i = 0; i < this.onlineInfo.length; i++) 
+        {
+          if (proVInfo[j].portIndex == this.onlineInfo[i].PortIndex) 
           {
-            indexTitle: 0,
-            Dir: "in",
-            portIndex: 0,
-            title: "CLOSE",
-            status: "close",
-            link_status: "false",
-            sourceGroup: JSON.parse(JSON.stringify(sourceGroup))
-          }
-        ];
-        for (let i = 0; i < proVInfo.length; i++) {
-          if (proVInfo[i].Dir == "In") {
-            proVInfo[i].sourceGroup = sourceGroup;
-            sourceGroup1.push(proVInfo[i]);
+           
+            proVInfo[j].OnlineStatus = this.onlineInfo[i].OnlineStatus;
+            
           }
         }
-        // console.log(sourceGroup1);
-        this.aoDataOut = sourceGroup;
-        // console.log(this.aoDataOut);
-        this.aoData = JSON.parse(JSON.stringify(sourceGroup1));
-        // console.log(this.aoData);
-        this.aoDataLength = this.aoData.length;
-        // console.log(this.aoDataLength);
-        if (this.aoDataOut.length <= 17) {
-          this.isrightHidden = true;
-        } else if (this.isrightHidden == true) {
-          this.isrightHidden = true;
-        } else {
-          this.isrightHidden = false;
+        for (let i = 0; i < this.portInfo.length; i++) 
+        {
+          if (proVInfo[j].portIndex == this.portInfo[i].PortIndex) 
+          {
+            proVInfo[j].status = this.portInfo[i].Linkstatus;
+          }
         }
-        if (this.aoDataLength <= 18) {
-          this.isdownHidden = true;
-        } else if (this.isdownHidden == true) {
-          this.isdownHidden = true;
-        } else {
-          this.isdownHidden = false;
+        for (let i = 0; i < this.videoRouting.length; i++) 
+        {
+          if (proVInfo[j].portIndex == this.videoRouting[i].OutPort) 
+          {
+            proVInfo[j].switch = this.videoRouting[i].InPort;
+          }
         }
-        for (let i = 0; i < proVInfo.length; i++) {
-          for (let j = 0; j < this.aoData.length; j++) {
-            if (proVInfo[i].Dir == "Out" && proVInfo[i].OnlineStatus == false) {
-              let index = proVInfo[i].portIndex;
-              for (let k = 0; k < this.aoData[j].sourceGroup.length; k++) {
-                if (
-                  this.aoData[j].sourceGroup[k].portIndex == index &&
-                  j != this.aoData.length - 1
-                ) {
-                  this.aoData[j].sourceGroup[k].link_status = "noLine";
-                }
-              }
-            }
-            if (proVInfo[i].Dir == "In" && proVInfo[i].OnlineStatus == false) {
-              let index = proVInfo[i].indexTitle;
-              for (let k = 0; k < this.aoData[index].sourceGroup.length; k++) {
-                if (k != this.aoData[index].sourceGroup.length - 1) {
-                  this.aoData[index].sourceGroup[k].link_status = "noLine";
-                }
-              }
-            }
-            if (
-              proVInfo[i].Dir == "Out" &&
-              proVInfo[i].switch == this.aoData[j].portIndex
-            ) {
-              for (let k = 0; k < this.aoData[j].sourceGroup.length; k++) {
-                if (
-                  proVInfo[i].portIndex ==
-                  this.aoData[j].sourceGroup[k].portIndex
-                ) {
+        if (proVInfo[j].Dir == "Out") 
+        {
+          sourceGroup.push(proVInfo[j]);
+        }
+      }
+      let sourceGroup1 = [
+        {
+          indexTitle: 0,
+          Dir: "in",
+          portIndex: 0,
+          title: "CLOSE",
+          status: "close",
+          link_status: "false",
+          sourceGroup: JSON.parse(JSON.stringify(sourceGroup))
+        }
+      ];
+      for (let i = 0; i < proVInfo.length; i++) 
+      {
+        if (proVInfo[i].Dir == "In") 
+        {
+          proVInfo[i].sourceGroup = sourceGroup;
+          sourceGroup1.push(proVInfo[i]);
+        }
+      }
+      this.aoDataOut = sourceGroup;
+      for(let i=0;i<this.$store.state.portNumber;i++)
+      {
+        //console.log("The now is "+i);
+        this.aoDataOut[i].switchSelect = this.$store.state.VideoALLChecked[i];
+        //console.log("The check status "+this.$store.state.VideoALLChecked[i]);
+        //console.log("The now check status "+this.aoDataOut[i].switchSelect);
+      }
+      this.aoData = JSON.parse(JSON.stringify(sourceGroup1));
+      this.aoDataLength = this.aoData.length;
+      
+      if (this.aoDataOut.length <= 17) 
+      {
+        this.isrightHidden = true;
+      }
+      else if (this.isrightHidden == true) 
+      {
+        this.isrightHidden = true;
+      } 
+      else 
+      {
+        this.isrightHidden = false;
+      }
+      if (this.aoDataLength <= 18) 
+      {
+        this.isdownHidden = true;
+      } 
+      else if (this.isdownHidden == true) 
+      {
+        this.isdownHidden = true;
+      } 
+      else 
+      {
+        this.isdownHidden = false;
+      }
+      for (let i = 0; i < proVInfo.length; i++) 
+      {
+        if(this.isSelectAll)
+        {
+          for(let j=0;j<this.aoData.length;j++)
+          {
+            if (proVInfo[i].Dir == "Out" &&proVInfo[i].switch == this.aoData[j].portIndex) 
+            {
+              for (let k = 0; k < this.aoData[j].sourceGroup.length; k++) 
+              {
+                if (proVInfo[i].portIndex ==this.aoData[j].sourceGroup[k].portIndex) 
+                {
                   this.aoData[j].sourceGroup[k].link_status = "true";
                 }
               }
             }
+            else
+            {
+              for(let k=0;k<this.aoData[j].sourceGroup.length;k++)
+              {
+                this.aoData[j].sourceGroup[k].link_status = "no";
+              }
+            }
           }
         }
-        // console.log(this.aoData);
+        else
+        {
+          for (let j = 0; j < this.aoData.length; j++) 
+          {
+            if (proVInfo[i].Dir == "Out" && proVInfo[i].OnlineStatus == false) 
+            {
+              let index = proVInfo[i].portIndex;
+              for (let k = 0; k < this.aoData[j].sourceGroup.length; k++) 
+              {
+                if (this.aoData[j].sourceGroup[k].portIndex == index) 
+                {
+                  this.aoData[j].sourceGroup[k].link_status = "noLine";
+                }
+              }
+            }
+            if (proVInfo[i].Dir == "In" && proVInfo[i].OnlineStatus == false) 
+            {
+              let index = proVInfo[i].indexTitle;
+              for (let k = 0; k < this.aoData[index].sourceGroup.length; k++) 
+              {  
+                this.aoData[index].sourceGroup[k].link_status = "noLine";  
+              }
+            }
+            if (proVInfo[i].Dir == "Out" &&proVInfo[i].switch == this.aoData[j].portIndex) 
+            {
+              for (let k = 0; k < this.aoData[j].sourceGroup.length; k++) 
+              {
+                if (proVInfo[i].portIndex ==this.aoData[j].sourceGroup[k].portIndex) 
+                {
+                  this.aoData[j].sourceGroup[k].link_status = "true";
+                }
+              }
+            }
+        
+          }
+        }
         this.$emit("closeLoading", false);
       }
     },
     getOnline() {
+      console.log("获取端口在线状态");
       let that = this;
       let aoData = {
         cmd: "PortOnline"
@@ -1001,17 +985,20 @@ export default {
       this.$axios
         .post("/cgi-bin/ligline.cgi", aoData)
         .then(function(response) {
-          if (response.data.status == "SUCCESS") {
+          if (response.data.status == "SUCCESS") 
+          {
             that.onlineInfo = response.data.echo.result.Data;
-            // console.log(that.onlineInfo);
             that.getportInfo();
-          } else if (response.data.status == "ERROR") {
+          } 
+          else if (response.data.status == "ERROR") 
+          {
           }
         })
         .catch(function(error) {
           console.log(error);
         });
     },
+    /**获取端口的切换状态和连接状态 */
     getportInfo() {
       let that = this;
       let aoData = {
@@ -1019,14 +1006,16 @@ export default {
       };
       this.$axios
         .post("/cgi-bin/ligline.cgi", aoData)
-        .then(function(response) {
-          if (response.data.status == "SUCCESS") {
+        .then(function(response) 
+        {
+          if (response.data.status == "SUCCESS") 
+          {
             that.portInfo = response.data.echo.result.LinkStatus;
             that.videoRouting = response.data.echo.result.VideoRouting;
-            // console.log(that.portInfo);
-            // console.log(that.videoRouting);
             that.getportNumInfo();
-          } else if (response.data.status == "ERROR") {
+          } 
+          else if (response.data.status == "ERROR") 
+          {
           }
         })
         .catch(function(error) {
@@ -1035,16 +1024,25 @@ export default {
     }
   },
   created() {
+    console.log("created");
+    /*
+    for(let i=0;i<this.portNumber;i++)
+    {
+      this.aoDataOut[i].switchSelect = this.$store.state.VideoALLChecked[i];
+    }
     this.getOnline();
-    this.getProInfo();
+    this.getProInfo();*/
   },
   mounted() {
     //获取端口信息
+    console.log("mounted");
+    this.getOnline();
+    this.getProInfo();
     let that = this;
+    that.getportInfo();
     window.myInterval = setInterval(function() {
       that.getportInfo();
     }, 3000);
-
     window.onresize = () => {
       return (() => {
         window.screenWidth = document.body.clientWidth;

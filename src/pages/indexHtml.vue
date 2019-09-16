@@ -107,26 +107,34 @@ export default {
     },
     "$store.state.upgradeLoading": function() {
       this.upgradeStatus = this.$store.state.upgradeLoading;
-      if (this.$store.state.upgradeLoading == true) {
+      if (this.$store.state.upgradeLoading == true) 
+      {
         this.getUpgrade();
       }
     },
     "$store.state.upgradeDeviceLoading": function() {
       this.upgradeDeviceStatus = this.$store.state.upgradeDeviceLoading;
-      if (this.$store.state.upgradeDeviceLoading == true) {
+      if (this.$store.state.upgradeDeviceLoading == true) 
+      {
         this.getDeviceUpgrade();
       }
     },
     "$store.state.upgradeNumber": {
-      handler(newValue, oldValue) {
-        if (newValue == -2) {
+      handler(newValue, oldValue) 
+      {
+        if (newValue == -2) 
+        {
           console.log("aaaa");
           this.fileGrogress = 100;
           this.$store.state.upgradeLoading = false;
           this.upgradeStatus = this.$store.state.upgradeLoading;
-        } else if (newValue == -1) {
+        }
+        else if (newValue == -1) 
+        {
           console.log("-1-1-1-1");
-        } else {
+        } 
+        else 
+        {
           console.log("bbbb");
           this.goGrogress(this.$store.state.upgradeNumber);
         }
@@ -167,6 +175,7 @@ export default {
       }
     },
     getMatrixStatus(str) {
+      console.log("获取矩阵的状态信息")
       let that = this;
       if (that.isGetStatus == true) {
         let aoData = {
@@ -174,38 +183,55 @@ export default {
         };
         this.$axios
           .post("/cgi-bin/ligline.cgi", aoData)
-          .then(function(response) {
-            if (response.data.status == "SUCCESS") {
+          .then(function(response) 
+          {
+            if (response.data.status == "SUCCESS") 
+            {
               that.loading = false;
               that.status = true;
-              if (window.myTimeout) {
+              if (window.myTimeout) 
+              {
                 window.clearTimeout(window.myTimeout);
               }
               that.moudelInfo = response.data.echo.result.name;
-              that.$store.state.portNumber =
-                response.data.echo.result.PortNumber;
+              that.$store.state.portNumber =response.data.echo.result.PortNumber;
+              console.log("the check length is "+that.$store.state.VideoALLChecked.length);
+              if(that.$store.state.VideoALLChecked.length==0)
+              {
+                for(let i=0;i<=that.$store.state.portNumber;i++)
+                {
+                  that.$store.state.VideoALLChecked[i]=true;
+                }
+              }
               that.$store.state.sn = response.data.echo.result.sn;
               that.$store.state.version = response.data.echo.result.version;
               document.title = that.moudelInfo;
-              if (str) {
-              } else {
+              if (str) 
+              {
+              } 
+              else 
+              {
                 window.getMatrixInterval = setInterval(function() {
                   that.getMatrixStatus("check");
                 }, 60000);
               }
-            } else if (response.data.status == "ERROR") {
+            } 
+            else if (response.data.status == "ERROR") 
+            {
               that.getMatrixStatus();
             }
           })
           .catch(function(error) {
-            if (str == "check") {
+            if (str == "check") 
+            {
               that.$alert("Network error", "Prompt information", {
                 confirmButtonText: "OK",
                 callback: action => {
                   window.location.reload();
                 }
               });
-            } else {
+            } 
+            else {
               that.getMatrixStatus();
             }
             console.log(error);
