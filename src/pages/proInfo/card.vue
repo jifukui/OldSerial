@@ -64,13 +64,6 @@
                 @click="uplaodFile()"
               >Browse</el-button>
             </p>
-            <!-- 文件名称 -->
-            <!-- <p>
-              <span style="white-space:normal;word-wrap: break-word;">
-                <p style="margin:0">{{ fileName }}</p>
-              </span>
-            </p> -->
-            <!-- 上传进度条 -->
             <p>
               <el-progress
                 :percentage="fileGrogress"
@@ -78,26 +71,6 @@
                 :status="uploadStatus"
               ></el-progress>
             </p>
-            <!-- 开始上传 -->
-            <!-- <p class="line40">
-              <el-button
-                class="btn"
-                type="primary"
-                @click="getfileInfo($event)"
-                :disabled="isFile == true ? false : true"
-                >Upload</el-button
-              >
-            </p> -->
-            <!-- 开始升级 -->
-            <!-- <p class="line40">
-              <el-button
-                class="btn"
-                type="primary"
-                @click="isDecompression()"
-                :disabled="isUpgrade == true ? false : true"
-                >Start Upgrade</el-button
-              >
-            </p> -->
           </div>
         </div>
       </div>
@@ -165,29 +138,23 @@ export default {
   watch: {},
   computed: {},
   methods: {
-    uplaodFile() {
+    uplaodFile() 
+    {
       document.getElementById("fileCard").click();
     },
     // 选择文件
-    selectFile(event) {
+    selectFile(event) 
+    {
       this.file = event.target.files[0];
       let filemaxsize = 1024 * 2;
       let size = this.file.size / 1024;
       let index = this.file.name.lastIndexOf(".");
       let ext = this.file.name.substr(index + 1);
       let extUpperCase = ext.toUpperCase();
-      // if (size > filemaxsize) {
-      //   this.$alert(
-      //     "The appendix size should not exceed " + filemaxsize / 1024 + "M！",
-      //     "Prompt information",
-      //     {
-      //       confirmButtonText: "OK",
-      //       callback: action => {}
-      //     }
-      //   );
-      //   return false;
-      // }
-      if (size <= 0) {
+      this.$store.state.JiFileSize=this.file.size;
+      console.log("the file size is "+that.$store.state.JiFileSize);
+      if (size <= 0) 
+      {
         this.$alert("The appendix size can not be 0M！", "Prompt information", {
           confirmButtonText: "OK",
           callback: action => {
@@ -197,8 +164,10 @@ export default {
         });
         return false;
       }
-      if (extUpperCase != "KMPT" && extUpperCase != "KPTW") {
-        this.$alert("Upgrade file type error", "Prompt information", {
+      if (extUpperCase != "KMPT" && extUpperCase != "KPTW") 
+      {
+        this.$alert("Upgrade file type error", "Prompt information", 
+        {
           confirmButtonText: "OK",
           callback: action => {
             that.uploading = false;
@@ -215,14 +184,17 @@ export default {
       this.getfileInfo(event);
     },
     // 上传升级文件
-    getfileInfo(event) {
+    getfileInfo(event) 
+    {
       event.preventDefault();
       let that = this;
       that.uploading = true;
       let formData = new window.FormData();
       formData.append("file", this.file);
-      let config = {
-        headers: {
+      let config = 
+      {
+        headers: 
+        {
           "Content-Type": "multipart/form-data"
         },
         onUploadProgress: progressEvent => {
@@ -231,20 +203,21 @@ export default {
           this.fileGrogress = complete;
         }
       };
-      this.$axios
-        .post("/cgi-bin/upload.cgi", formData, config)
-        .then(function(msg) {
-          if (msg.data.status == "SUCCESS") {
-            that.uploadStatus = "success";
-            that.fileGrogress = 100;
-            that.isUpgrade = true;
-            that.isDecompression();
-            console.log("good for this ");
-          } else {
+      this.$axios.post("/cgi-bin/upload.cgi", formData, config).then(function(msg) 
+      {
+        if (msg.data.status == "SUCCESS") 
+        {
+          that.uploadStatus = "success";
+          that.fileGrogress = 100;
+          that.isUpgrade = true;
+          that.isDecompression();
+          console.log("good for this ");
+        } 
+        else 
+        {
             console.log("The value is " + msg.data.status);
-          }
-        })
-        .catch(function(error) {
+        }
+      }).catch(function(error) {
            console.log(error);
         });
     },
@@ -255,138 +228,28 @@ export default {
       let extLast = this.fileName.substr(index + 1);
       let extUpperCase = extLast.toUpperCase();
       let that = this;
-      let aoData = {
+      let aoData = 
+      {
         cmd: "GetUpgradeFileName",
         Data: {
           Filename: that.fileName
         }
       };
-      this.$axios
-        .post("/cgi-bin/ligline.cgi", aoData)
-        .then(function(response) {
-          if (response.data.status == "SUCCESS") {
-            that.decompressionFileName = response.data.echo.result.Filename;
-            let portNumber = that.$store.state.portNumber;
-            if (portNumber == 16) {
-              if (
+      this.$axios.post("/cgi-bin/ligline.cgi", aoData).then(function(response) 
+      {
+        if (response.data.status == "SUCCESS") 
+        {
+          that.decompressionFileName = response.data.echo.result.Filename;
+          that.$store.state.JiFileSize=response.data.echo.result.FileSize;
+          console.log("the file size is "+that.$store.state.JiFileSize);
+          let portNumber = that.$store.state.portNumber;
+          if (portNumber == 16)
+          {
+            if (
                 that.decompressionFileName.indexOf("IN2") == -1 &&
                 that.decompressionFileName.indexOf("OUT2") == -1
-              ) {
-                that.$alert(
-                  "The upgrade file is incorrect. Please check and upload it!",
-                  "Prompt information",
-                  {
-                    confirmButtonText: "OK",
-                    callback: action => {
-                      that.uploading = false;
-                      that.uploadedFiles = ""
-                    }
-                  }
-                );
-                return false;
-              }
-            } else if (portNumber == 32) {
-              if (
-                that.decompressionFileName.indexOf("IN4") == -1 &&
-                that.decompressionFileName.indexOf("OUT4") == -1
-              ) {
-                that.$alert(
-                  "The upgrade file is incorrect. Please check and upload it!",
-                  "Prompt information",
-                  {
-                    confirmButtonText: "OK",
-                    callback: action => {
-                      that.uploading = false;
-                      that.uploadedFiles = ""
-                    }
-                  }
-                );
-                return false;
-              }
-            } else if (portNumber == 64) {
-              if (
-                that.decompressionFileName.indexOf("IN8") == -1 &&
-                that.decompressionFileName.indexOf("OUT8") == -1
-              ) {
-                that.$alert(
-                  "The upgrade file is incorrect. Please check and upload it!",
-                  "Prompt information",
-                  {
-                    confirmButtonText: "OK",
-                    callback: action => {
-                      that.uploading = false;
-                      that.uploadedFiles = ""
-                    }
-                  }
-                );
-                return false;
-              }
-            }
-            let index = that.decompressionFileName.lastIndexOf(".");
-            let index_ = that.decompressionFileName.lastIndexOf("_");
-            let ext = that.decompressionFileName.substring(index_ + 1, index);
-            let filename = that.decompressionFileName.substring(0, index);
-            let fileNameStr = "";
-            let fileNameSlotArr = [];
-            let isTrue = false;
-            fileNameStr = filename.substring(
-              filename.lastIndexOf("[") + 1,
-              filename.lastIndexOf("]")
-            );
-            let fileNameArr = fileNameStr.split("_");
-            if (fileNameArr[1].indexOf("&") != -1) {
-              fileNameSlotArr = fileNameArr[1].split("&");
-            } else {
-              fileNameSlotArr.push(fileNameArr[1]);
-            }
-            console.log(ext);
-            console.log(typeof ext);
-            if (ext == "N") {
-              console.log("是N");
-              that.Upgrade(that.decompressionFileName);
-            } else if (ext == "200" || ext == "203") {
-              that.Upgrade(that.decompressionFileName);
-              console.log("是200");
-            } else if (parseInt(ext) > 0 && parseInt(ext) < 17) {
-              for (let i = 0; i < that.cardList.length; i++) {
-                if (that.cardList[i].slot == parseInt(ext)) {
-                  if (that.cardList[i].type < 0) {
-                    that.$alert(
-                      "The upgrade file is incorrect. Please check and upload it!",
-                      "Prompt information",
-                      {
-                        confirmButtonText: "OK",
-                        callback: action => {
-                          that.uploading = false;
-                          that.uploadedFiles = ""
-                        }
-                      }
-                    );
-                    return false;
-                  }
-                  for (let j = 0; j < fileNameSlotArr.length; j++)
-                    if (that.cardList[i].type == fileNameSlotArr[j]) {
-                      isTrue = true;
-                    }
-                  if (isTrue == false) {
-                    that.$alert(
-                      "The upgrade file is incorrect. Please check and upload it!",
-                      "Prompt information",
-                      {
-                        confirmButtonText: "OK",
-                        callback: action => {
-                          that.uploading = false;
-                          that.uploadedFiles = ""
-                        }
-                      }
-                    );
-                    return false;
-                  } else {
-                    that.Upgrade(that.decompressionFileName);
-                  }
-                }
-              }
-            } else {
+              ) 
+            {
               that.$alert(
                 "The upgrade file is incorrect. Please check and upload it!",
                 "Prompt information",
@@ -400,29 +263,170 @@ export default {
               );
               return false;
             }
-          } else if (response.data.status == "ERROR") {
-            that.$alert(response.data.error, "Prompt information", {
-              confirmButtonText: "OK",
-              callback: action => {
-                that.uploading = false;
-                that.uploadedFiles = ""
-              },
-            });
           }
-        })
-        .catch(function(error) {
+          else if (portNumber == 32) 
+          {
+            if (
+              that.decompressionFileName.indexOf("IN4") == -1 &&
+              that.decompressionFileName.indexOf("OUT4") == -1
+              )
+            {
+              that.$alert(
+                "The upgrade file is incorrect. Please check and upload it!",
+                "Prompt information",
+                {
+                  confirmButtonText: "OK",
+                  callback: action => {
+                    that.uploading = false;
+                    that.uploadedFiles = ""
+                  }
+                }
+              );
+              return false;
+            }
+          } 
+          else if (portNumber == 64) 
+          {
+            if (
+              that.decompressionFileName.indexOf("IN8") == -1 &&
+              that.decompressionFileName.indexOf("OUT8") == -1
+              ) 
+            {
+              that.$alert(
+                "The upgrade file is incorrect. Please check and upload it!",
+                "Prompt information",
+                {
+                  confirmButtonText: "OK",
+                  callback: action => {
+                    that.uploading = false;
+                    that.uploadedFiles = ""
+                  }
+                }
+              );
+              return false;
+            }
+          }
+          let index = that.decompressionFileName.lastIndexOf(".");
+          let index_ = that.decompressionFileName.lastIndexOf("_");
+          let ext = that.decompressionFileName.substring(index_ + 1, index);
+          let filename = that.decompressionFileName.substring(0, index);
+          let fileNameStr = "";
+          let fileNameSlotArr = [];
+          let isTrue = false;
+          fileNameStr = filename.substring(
+            filename.lastIndexOf("[") + 1,
+            filename.lastIndexOf("]")
+          );
+          let fileNameArr = fileNameStr.split("_");
+          if (fileNameArr[1].indexOf("&") != -1) 
+          {
+            fileNameSlotArr = fileNameArr[1].split("&");
+          } 
+          else 
+          {
+            fileNameSlotArr.push(fileNameArr[1]);
+          }
+          console.log(ext);
+          console.log(typeof ext);
+          if (ext == "N") 
+          {
+            console.log("是N");
+            that.Upgrade(that.decompressionFileName);
+          }
+          else if (ext == "200" || ext == "203") 
+          {
+            that.Upgrade(that.decompressionFileName);
+            console.log("是200");
+          } 
+          else if (parseInt(ext) > 0 && parseInt(ext) < 17) 
+          {
+            for (let i = 0; i < that.cardList.length; i++) 
+            {
+              if (that.cardList[i].slot == parseInt(ext)) 
+              {
+                if (that.cardList[i].type < 0) 
+                {
+                  that.$alert(
+                    "The upgrade file is incorrect. Please check and upload it!",
+                    "Prompt information",
+                    {
+                      confirmButtonText: "OK",
+                      callback: action => {
+                        that.uploading = false;
+                        that.uploadedFiles = ""
+                      }
+                    }
+                  );
+                  return false;
+                }
+                for (let j = 0; j < fileNameSlotArr.length; j++)
+                    if (that.cardList[i].type == fileNameSlotArr[j]) 
+                    {
+                      isTrue = true;
+                    }
+                  if (isTrue == false) 
+                  {
+                    that.$alert(
+                      "The upgrade file is incorrect. Please check and upload it!",
+                      "Prompt information",
+                      {
+                        confirmButtonText: "OK",
+                        callback: action => {
+                          that.uploading = false;
+                          that.uploadedFiles = ""
+                        }
+                      }
+                    );
+                    return false;
+                  } 
+                  else 
+                  {
+                    that.Upgrade(that.decompressionFileName);
+                  }
+              }
+            }
+          } 
+          else 
+          {
+            that.$alert(
+              "The upgrade file is incorrect. Please check and upload it!",
+              "Prompt information",
+              {
+                confirmButtonText: "OK",
+                callback: action => {
+                  that.uploading = false;
+                  that.uploadedFiles = ""
+                }
+              }
+            );
+            return false;
+          }
+        } 
+        else if (response.data.status == "ERROR") 
+        {
+          that.$alert(response.data.error, "Prompt information", {
+            confirmButtonText: "OK",
+            callback: action => {
+              that.uploading = false;
+              that.uploadedFiles = ""
+            },
+          });
+        }
+      }).catch(function(error) {
            console.log(error);
         });
       console.log(this.fileName);
     },
     //开始升级
-    Upgrade(file) {
+    Upgrade(file) 
+    {
       this.selectCardUpgradeArr.length = 0;
       let index = file.lastIndexOf(".");
       let ext = file.charAt(index - 1);
       let filename = file.substring(0, index);
       let fileNameStr = "";
-      if (ext == "N") {
+      if (ext == "N") 
+      {
         fileNameStr = filename.substring(
           filename.lastIndexOf("[") + 1,
           filename.lastIndexOf("]")
@@ -430,28 +434,41 @@ export default {
         let fileNameArr = fileNameStr.split("_");
         let fileNameSlotArr = [];
 
-        if (fileNameArr[1].indexOf("&") != -1) {
+        if (fileNameArr[1].indexOf("&") != -1) 
+        {
           fileNameSlotArr = fileNameArr[1].split("&");
-        } else {
+        } 
+        else 
+        {
           fileNameSlotArr.push(fileNameArr[1]);
         }
         let upgradeArr = [];
-        if (fileNameArr[0].indexOf("OUT") != -1) {
-          if (fileNameSlotArr.length == 1) {
-            for (let i = 0; i < this.cardList.length; i++) {
+        if (fileNameArr[0].indexOf("OUT") != -1) 
+        {
+          if (fileNameSlotArr.length == 1) 
+          {
+            for (let i = 0; i < this.cardList.length; i++) 
+            {
               if (
                 this.cardList[i].Direction == "Out" &&
                 this.cardList[i].type == fileNameSlotArr[0]
-              ) {
+              ) 
+              {
                 upgradeArr.push(this.cardList[i]);
                 this.selectCardUpgradeArr.push(this.cardList[i].slot);
               }
             }
-          } else {
-            for (let i = 0; i < this.cardList.length; i++) {
-              if (this.cardList[i].Direction == "Out") {
-                for (let j = 0; j < fileNameSlotArr.length; j++) {
-                  if (this.cardList[i].type == fileNameSlotArr[j]) {
+          } 
+          else 
+          {
+            for (let i = 0; i < this.cardList.length; i++) 
+            {
+              if (this.cardList[i].Direction == "Out") 
+              {
+                for (let j = 0; j < fileNameSlotArr.length; j++) 
+                {
+                  if (this.cardList[i].type == fileNameSlotArr[j]) 
+                  {
                     upgradeArr.push(this.cardList[i]);
                     this.selectCardUpgradeArr.push(this.cardList[i].slot);
                   }
@@ -459,22 +476,33 @@ export default {
               }
             }
           }
-        } else if (fileNameArr[0].indexOf("IN") != -1) {
-          if (fileNameSlotArr.length == 1) {
-            for (let i = 0; i < this.cardList.length; i++) {
+        } 
+        else if (fileNameArr[0].indexOf("IN") != -1) 
+        {
+          if (fileNameSlotArr.length == 1) 
+          {
+            for (let i = 0; i < this.cardList.length; i++) 
+            {
               if (
                 this.cardList[i].Direction == "In" &&
                 this.cardList[i].type == fileNameSlotArr[0]
-              ) {
+              ) 
+              {
                 upgradeArr.push(this.cardList[i]);
                 this.selectCardUpgradeArr.push(this.cardList[i].slot);
               }
             }
-          } else {
-            for (let i = 0; i < this.cardList.length; i++) {
-              if (this.cardList[i].Direction == "In") {
-                for (let j = 0; j < fileNameSlotArr.length; j++) {
-                  if (this.cardList[i].type == fileNameSlotArr[j]) {
+          } 
+          else 
+          {
+            for (let i = 0; i < this.cardList.length; i++) 
+            {
+              if (this.cardList[i].Direction == "In") 
+              {
+                for (let j = 0; j < fileNameSlotArr.length; j++) 
+                {
+                  if (this.cardList[i].type == fileNameSlotArr[j]) 
+                  {
                     upgradeArr.push(this.cardList[i]);
                     this.selectCardUpgradeArr.push(this.cardList[i].slot);
                   }
@@ -488,14 +516,18 @@ export default {
         console.log(fileNameArr);
         console.log(upgradeArr);
         console.log(this.selectCardUpgradeArr);
-      } else {
+      } 
+      else 
+      {
         this.upgardeCardOne(file);
       }
     },
     // 确认开始升级
-    selectCardUpgrade() {
+    selectCardUpgrade() 
+    {
       console.log(this.selectCardUpgradeArr);
-      if (this.selectCardUpgradeArr.length == 0) {
+      if (this.selectCardUpgradeArr.length == 0) 
+      {
         this.$alert(
           "Please check the cards you want to upgrade",
           "Prompt information",
@@ -506,22 +538,28 @@ export default {
             }
           }
         );
-      } else {
+      } 
+      else 
+      {
         let fileArr = [];
         fileArr.length = 0;
         let fileName1 = "";
         let index = "";
-        if (this.decompressionFileName != "") {
+        if (this.decompressionFileName != "") 
+        {
           fileArr.push(this.decompressionFileName);
           index = this.decompressionFileName.lastIndexOf(".");
           fileName1 = this.decompressionFileName;
-        } else {
+        } 
+        else 
+        {
           fileArr.push(this.fileName);
           index = this.fileName.lastIndexOf(".");
           fileName1 = this.fileName;
         }
 
-        for (let i = 0; i < this.selectCardUpgradeArr.length; i++) {
+        for (let i = 0; i < this.selectCardUpgradeArr.length; i++) 
+        {
           let fileName = this.replacePos(
             fileName1,
             index - 1,
@@ -538,59 +576,70 @@ export default {
       }
     },
     // 取消开始升级
-    cancelUpload()  {
+    cancelUpload()  
+    {
       this.dialogFormVisible = false;
       this.uploading = false;
       this.uploadedFiles = ""
     },
-    replacePos(strObj, pos, replacetext) {
+    replacePos(strObj, pos, replacetext) 
+    {
       var str =
         strObj.substr(0, pos) +
         replacetext +
         strObj.substring(pos + 1, strObj.length);
       return str;
     },
-    upgardeFile(arr) {
-      if (this.upgradeNum < arr.length - 1) {
+    upgardeFile(arr) 
+    {
+      if (this.upgradeNum < arr.length - 1) 
+      {
         this.upgardeCard(arr[this.upgradeNum], arr[this.upgradeNum + 1], arr);
-      } else {
+      } 
+      else 
+      {
         this.upgradeNum = 0;
         this.$store.state.upgradeNumber = -2;
         console.log("cccc:" + this.$store.state.upgradeNumber);
       }
     },
-    upgardeCard(oldfile, newfile, arr) {
+    upgardeCard(oldfile, newfile, arr) 
+    {
       let that = this;
-      let aoData = {
+      let aoData = 
+      {
         cmd: "Upgrade",
         Data: {
           oldfile: oldfile, //旧文件名称
           newfile: newfile //新文件名称
         }
       };
-      this.$axios
-        .post("/cgi-bin/ligline.cgi", aoData)
-        .then(function(response) {
-          if (response.data.status == "SUCCESS") {
-            that.upgradeNum = that.upgradeNum + 1;
-            console.log("成功:" + that.upgradeNum);
-            that.$store.state.upgradeNumber = that.upgradeNum;
-            console.log("BBBB:" + that.$store.state.upgradeNumber);
-            that.upgardeFile(arr);
-          } else if (response.data.status == "ERROR") {
-            that.$alert(response.data.error, "Prompt information", {
-              confirmButtonText: "OK",
-              callback: action => {
-                that.$store.state.upgradeLoading = false;
-              }
-            });
-          }
-        })
-        .catch(function(error) {
+      this.$axios.post("/cgi-bin/ligline.cgi", aoData).then(function(response) 
+      {
+        if (response.data.status == "SUCCESS") 
+        {
+          that.upgradeNum = that.upgradeNum + 1;
+          console.log("成功:" + that.upgradeNum);
+          that.$store.state.upgradeNumber = that.upgradeNum;
+          console.log("BBBB:" + that.$store.state.upgradeNumber);
+          that.upgardeFile(arr);
+        } 
+        else if (response.data.status == "ERROR") 
+        {
+          that.$alert(response.data.error, "Prompt information", 
+          {
+            confirmButtonText: "OK",
+            callback: action => {
+              that.$store.state.upgradeLoading = false;
+            }
+          });
+        }
+      }).catch(function(error) {
           console.log(error);
         });
     },
-    upgardeCardOne(file) {
+    upgardeCardOne(file) 
+    {
       this.$store.state.upgradeLoading = true;
       this.$store.state.upgradeNumbers = 1;
       this.$store.state.upgradeNumber = -1;
@@ -602,32 +651,38 @@ export default {
           newfile: file //新文件名称
         }
       };
-      this.$axios
-        .post("/cgi-bin/ligline.cgi", aoData)
-        .then(function(response) {
-          if (response.data.status == "SUCCESS") {
-            that.$store.state.upgradeNumbers = 1;
-            that.$store.state.upgradeNumber = -2;
-            console.log("成功升级");
-          } else if (response.data.status == "ERROR") {
-            that.$alert(response.data.error, "Prompt information", {
-              confirmButtonText: "OK",
-              callback: action => {
-                that.$store.state.upgradeLoading = false;
-              }
+      this.$axios.post("/cgi-bin/ligline.cgi", aoData).then(function(response) 
+      {
+        if (response.data.status == "SUCCESS")
+        {
+          that.$store.state.upgradeNumbers = 1;
+          that.$store.state.upgradeNumber = -2;
+          console.log("成功升级");
+        } 
+        else if (response.data.status == "ERROR") 
+        {
+          that.$alert(response.data.error, "Prompt information", 
+          {
+            confirmButtonText: "OK",
+            callback: action => {
+              that.$store.state.upgradeLoading = false;
+            }
             });
-          }
-        })
-        .catch(function(error) {
+        }
+      }).catch(function(error) {
            console.log(error);
         });
     },
-    reset() {
+    reset() 
+    {
       let that = this;
       let value = "";
-      if (that.direction == "In") {
+      if (that.direction == "In") 
+      {
         value = 0;
-      } else if (that.direction == "Out") {
+      } 
+      else if (that.direction == "Out") 
+      {
         value = 1;
       }
       this.$confirm(
@@ -649,93 +704,127 @@ export default {
               type: value
             }
           };
-          this.$axios
-            .post("/cgi-bin/ligline.cgi", aoData)
-            .then(function(response) {
-              if (response.data.status == "SUCCESS") {
-                that.$alert("Factory success", "Prompt information", {
-                  confirmButtonText: "OK",
-                  callback: action => {}
-                });
-              } else if (response.data.status == "ERROR") {
-                that.$alert(response.data.error, "Prompt information", {
-                  confirmButtonText: "OK",
-                  callback: action => {}
-                });
-              }
-            })
-            .catch(function(error) {
+          this.$axios.post("/cgi-bin/ligline.cgi", aoData).then(function(response) 
+          {
+            if (response.data.status == "SUCCESS") 
+            {
+              that.$alert("Factory success", "Prompt information", 
+              {
+                confirmButtonText: "OK",
+                callback: action => {}
+              });
+            } 
+            else if (response.data.status == "ERROR") 
+            {
+              that.$alert(response.data.error, "Prompt information", {
+                confirmButtonText: "OK",
+                callback: action => {}
+              });
+            }
+          }).catch(function(error) 
+          {
               console.log(error);
             });
-        })
-        .catch(() => {
+        }).catch(() => {
           let sendata = {
             resetSure: "取消重置信息"
           };
           console.log(sendata);
         });
     },
-    selectCardInfo(index, status, items) {
+    selectCardInfo(index, status, items) 
+    {
+      console.log("The index is "+index);
       this.isActive = index;
-      if (status >= 0) {
+      if (status >= 0) 
+      {
         this.isCard = true;
         this.model = items.name;
         this.modelId = items.type;
         this.firmwareVersion = items.fw_info[0].version;
-        if (index > 0 && index < 5) {
+        if (index > 0 && index < 5) 
+        {
           this.type = "Input";
           this.direction = "In";
-        } else if (index >= 5 && index < 9) {
+        } 
+        else if (index >= 5 && index < 9) 
+        {
           this.type = "Output";
           this.direction = "Out";
-        } else if (index >= 9 && index < 13) {
+        } 
+        else if (index >= 9 && index < 13) 
+        {
           this.type = "Input";
           this.direction = "In";
-        } else if (index >= 13 && index < 17) {
+        } 
+        else if (index >= 13 && index < 17) 
+        {
           this.type = "Output";
           this.direction = "Out";
-        } else {
+        } 
+        else 
+        {
           this.type = "Output";
           this.direction = "Out";
         }
-      } else if (status < 0) {
+      } 
+      else if (status < 0) 
+      {
         this.isCard = false;
       }
     },
     //获取cardList
-    getCardList() {
+    getCardList() 
+    {
       let that = this;
-      this.$axios
-        .get("/configuration.json")
-        .then(response => {
-          that.cardList = response.data.data.card;
-          for (let index = 1; index < 18; index++) {
-            if (index > 0 && index < 5) {
-              that.cardList[index - 1].Direction = "In";
-            } else if (index >= 5 && index < 9) {
-              that.cardList[index - 1].Direction = "Out";
-            } else if (index >= 9 && index < 13) {
-              that.cardList[index - 1].Direction = "In";
-            } else if (index >= 13 && index < 17) {
-              that.cardList[index - 1].Direction = "Out";
-            } else {
-              that.cardList[index - 1].Direction = "Out";
-            }
+      this.$axios.get("/configuration.json").then(response => {
+        let card= response.data.data.card;
+        //console.log(JSON.stringify(card));
+        for (let index = 0; index < 17; index++) 
+        {
+          if(card[index].name=="unknown")
+          {
+            
           }
-          that.selectCardInfo(1, that.cardList[0].type, that.cardList[0]);
-        })
-        .catch(function(error) {
+          else
+          {
+            if(index==16)
+            {
+              card[index].Direction = "Out";
+            }
+            else
+            {
+              if(((index/4)%2)==0)
+              {
+                card[index].Direction = "In";
+              }
+              else
+              {
+                card[index].Direction = "Out";
+              }
+            }
+            that.cardList.push(card[index]);
+          }
+          
+        }
+        //console.log("card list is "+JSON.stringify(that.cardList));
+        that.selectCardInfo(that.cardList[0].slot, that.cardList[0].type, that.cardList[0]);
+        }).catch(function(error) 
+        {
           console.log(error);
         });
-    }
+      }
   },
   created() {
     this.getCardList();
-    if (window.getDeviceInterval) {
+    if (window.getDeviceInterval) 
+    {
       window.clearInterval(window.getDeviceInterval);
     }
   },
-  mounted() {}
+  mounted() {
+    this.$store.state.Settingsname='second';
+  }
 };
 </script>
 <style>

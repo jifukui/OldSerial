@@ -35,7 +35,7 @@ export default {
     },
     data() {
         return {
-            activeName: "first"
+            activeName: this.$store.state.Settingsname
         };
     },
     methods: {

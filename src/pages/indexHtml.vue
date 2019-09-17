@@ -4,6 +4,11 @@
     <div
       class="main_section"
       v-if="status && !restartStatus && !upgradeStatus && !upgradeDeviceStatus"
+      v-loading="pageload"
+      element-loading-spinner="el-icon-loading"
+      element-loading-text="Please Waiting ……"
+      element-loading-background="rgba(203,203,203,0.8)"
+      style="width: 100%"
     >
       <Navleft
         class="aside_nav"
@@ -92,7 +97,8 @@ export default {
       fileGrogress1: 0,
       uploadStatus: "",
       onegrogress: 0,
-      onegrogressOne: 0
+      onegrogressOne: 0,
+      pageload:false,
     };
   },
   components: {
@@ -140,6 +146,12 @@ export default {
         }
       },
       deep: true
+    },
+    "$store.state.PageLoading":function(value)
+    {
+      console.log("Hvae change load");
+      console.log("Value is "+value)
+      this.pageload=value; 
     }
   },
   computed: {},

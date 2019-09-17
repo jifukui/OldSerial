@@ -42,9 +42,12 @@ checkInp.fnValidateIPAddress = function (ipInput) {
 }
 checkInp.fnValidateName = function (nameInput) {
     var re = /^^\w{1,15}$/;
-    if (re.test(nameInput)) {
+    if (re.test(nameInput)) 
+    {
         return true;
-    } else {
+    } 
+    else 
+    {
         console.log("不合法的数据");
         return false;
     }
@@ -135,14 +138,14 @@ checkInp.fnValidateGateway = function (gateWayInp) {
     }
 }
 checkInp.fnValidateIcp = function (tcpInput) {
-    if (tcpInput > 65534 || tcpInput < 2000) {
+    if (tcpInput > 65535 || tcpInput < 1) {
         return false;
     } else {
         return true;
     }
 }
 checkInp.fnValidateUdp = function (udpInput) {
-    if (udpInput > 65534 || udpInput < 2000) {
+    if (udpInput > 65535 || udpInput < 1) {
         return false;
     } else {
         return true;

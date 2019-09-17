@@ -8,22 +8,27 @@ test.PortInfoAv = {
 }
 test.PortInfo = {
 }
-/**传入 */
-test.PortInitAv = function (value, type, num) {
+test.BasePortInfo={
+
+}
+test.PortInitAv = function (value, type) {
     var valueAv = test.PortInfoAv = {};
     valueAv.info = [];
     for (let i = 0; i < value.length; i++) {
         let ht = "";
-        ht = test.findMateData(value[i].Name, value[i].Value, type, num);
+        ht = test.findMateData(value[i].Name, value[i].Value, type);
         //console.log(ht)
-        if (ht == false) {
+        if (ht == false) 
+        {
             continue;
         }
-        if (ht.info != "") {
+        if (ht.info != "") 
+        {
             valueAv.info.push(JSON.parse(JSON.stringify(ht.info)))
         }
     }
     // console.log(JSON.stringify(valueAv));
+    test.BasePortInfo=JSON.parse(JSON.stringify(valueAv));
     return valueAv;
 }
 test.analyticalVersion = function (value) {
@@ -36,7 +41,6 @@ test.analyticalVersion = function (value) {
     data = `${parseInt(str3, 2)}.${parseInt(str2, 2)}.${parseInt(str1, 2)}`
     return data
 }
-
 test.findMateData = function (name, val, openType, num) {
     var data = {};
     data.info = {};
@@ -70,18 +74,26 @@ test.findMateData = function (name, val, openType, num) {
             }
         default:
             {
-                data.info.oldvalue = val;
-                data.info.lastervalue = val;
-                if (AvType.sid) {
+                if (AvType.sid) 
+                {
                     data.info.sid = AvType.sid;
-                } else {
+                } 
+                else 
+                {
 
                 }
                 data.info.value = AvType.data;
+                if(val<data.info.value.min||val>data.info.value.max)
+                {
+                    val=data.info.value.min;
+                }
+                data.info.oldvalue = val;
+                data.info.lastervalue = val;
             }
     }
     return data;
 }
+
 /**
  * 配置文件
  * 视频端口
@@ -218,8 +230,8 @@ test.config.AV["OutHDCPVersion"] = {
     sid: 8,
     data: [
         {
-            name: "HDCP OFF",
-            value: 0
+            name: "Follow Signal",
+            value: 2
         }, {
             name: "HDCP 1.4",
             value: 3
@@ -332,37 +344,6 @@ test.config.AV["OUTMODE"] = {
             value: 1
         }, {
             name: "Folow Sink",
-            value: 2
-        }
-    ]
-}
-test.config.AV["SeamlessEnable"] = {
-    title: "Seamless",
-    type: "list",
-    sid: 14,
-    data: [
-        {
-            name: "Off",
-            value: 0
-        }, {
-            name: "On",
-            value: 1
-        }
-    ]
-}
-test.config.AV["SeamlessMode"] = {
-    title: "Seamless Mode",
-    type: "list",
-    sid: 15,
-    data: [
-        {
-            name: "Normal",
-            value: 0
-        }, {
-            name: "Window Shade",
-            value: 1
-        }, {
-            name: "Zomm In",
             value: 2
         }
     ]
@@ -522,7 +503,7 @@ test.config.AV["Reset"] = {
     data: ''
 }
 test.config.AV["VideoFreeze"] = {
-    title: "Video freeze",
+    title: "Freeze",
     type: "list",
     sid: 40,
     data: [{
@@ -573,44 +554,39 @@ test.config.AV["OutResolution"] = {
     data: [{
         name: "640x480x60",
         value: 0
-    },
-    {
-        name: "720x480Px60",
-        value: 13
-    },
-    {
-        name: "720x576Px50",
-        value: 23
-    }, {
-        name: "800x600x60",
-        value: 14
     }, {
         name: "1024x768x60",
         value: 1
-    },
-    {
-        name: "1280x720Px50",
-        value: 12
-    },
-    {
-        name: "1280x720Px60",
-        value: 11
     }, {
         name: "1280x1024x60",
         value: 2
     }, {
         name: "1600x1200x60",
         value: 6
-    },
-    {
-        name: "1920x1080Px50",
-        value: 8
     }, {
         name: "1920x1080Px60",
         value: 7
     }, {
+        name: "1920x1080Px50",
+        value: 8
+    }, {
+        name: "1280x720Px60",
+        value: 11
+    }, {
+        name: "1280x720Px50",
+        value: 12
+    }, {
+        name: "720x480Px60",
+        value: 13
+    }, {
+        name: "800x600x60",
+        value: 14
+    }, {
         name: "1920x1200x60",
         value: 17
+    }, {
+        name: "720x576Px50",
+        value: 23
     }, {
         name: "Native",
         value: 56
@@ -623,24 +599,9 @@ test.config.AV["OutResolution_0"] = {
     data: [{
         name: "640x480x60",
         value: 0
-    },
-    {
-        name: "720x480Px60",
-        value: 13
-    }, {
-        name: "800x600x60",
-        value: 14
     }, {
         name: "1024x768x60",
         value: 1
-    },
-    {
-        name: "1280x720Px60",
-        value: 11
-    },
-    {
-        name: "1280x960x60",
-        value: 15
     }, {
         name: "1280x1024x60",
         value: 2
@@ -652,29 +613,40 @@ test.config.AV["OutResolution_0"] = {
         name: "1600x1200x60",
         value: 6
     }, {
-        name: "1920x1080Px60",
+        name: "1920x1080x60",
         value: 7
+    }, {
+        name: "1280x720x60",
+        value: 11
+    }, {
+        name: "720x480x60",
+        value: 13
+    }, {
+        name: "800x600x60",
+        value: 14
+    }, {
+        name: "1280x960x60",
+        value: 15
     }, {
         name: "1920x1200x60",
         value: 17
-    },
+    }, 
     // {
     //     name: "4096x2160x60",
     //     value: 49
     // },
     {
-        name: "3840x2160x30",
-        value: 52
-    },
-    {
         name: "3840x2160x60",
         value: 50
     },
-        //  {
-        //     name: "4096x2160x30",
-        //     value: 51
-        // }, 
-    ]
+    //  {
+    //     name: "4096x2160x30",
+    //     value: 51
+    // }, 
+    {
+        name: "3840x2160x30",
+        value: 52
+    }]
 }
 test.config.AV["OutResolution_1"] = {
     title: "Out Resolution",
@@ -683,48 +655,37 @@ test.config.AV["OutResolution_1"] = {
     data: [{
         name: "640x480x60",
         value: 0
-    },
-    {
+    },{
         name: "1024x768x60",
         value: 1
-    }, 
-    {
+    },{
         name: "1280x1024x60",
         value: 2
-    }, 
-    {
+    },{
         name: "1680x1050x60",
         value: 5
-    },
-    {
+    },{
         name: "1600x1200x60",
         value: 6
-    },
-    {
+    },{
         name: "1920x1080Px60",
         value: 7
-    }, 
-    {
+    },{
         name: "1280x720Px60",
         value: 11
-    },
-    {
+    },{
         name: "720x480Px60",
         value: 13
-    }, 
-    {
+    },{
         name: "800x600x60",
         value: 14
-    }, 
-    {
+    },{
         name: "1280x960x60",
         value: 15
-    }, 
-    {
+    },{
         name: "1920x1200x60",
         value: 17
-    },
-    {
+    },{
         name: "3840x2160x30",
         value: 52
     }]
@@ -735,7 +696,7 @@ test.config.AV["InputHorPosition"] = {
     sid: 46,
     data: {
         min: 0,
-        max: 16383
+        max: 5000
     }
 }
 test.config.AV["InputVerPosition"] = {
@@ -744,7 +705,7 @@ test.config.AV["InputVerPosition"] = {
     sid: 47,
     data: {
         min: 0,
-        max: 16383
+        max: 5000
     }
 }
 test.config.AV["InputHorSize"] = {
@@ -753,7 +714,7 @@ test.config.AV["InputHorSize"] = {
     sid: 48,
     data: {
         min: 0,
-        max: 16383
+        max: 5000
     }
 }
 test.config.AV["InputVerSize"] = {
@@ -762,7 +723,7 @@ test.config.AV["InputVerSize"] = {
     sid: 49,
     data: {
         min: 0,
-        max: 16383
+        max: 5000
     }
 }
 test.config.AV["OutputHorPosition"] = {
@@ -771,7 +732,7 @@ test.config.AV["OutputHorPosition"] = {
     sid: 50,
     data: {
         min: 0,
-        max: 16383
+        max: 5000
     }
 }
 test.config.AV["OutputVerPosition"] = {
@@ -780,7 +741,7 @@ test.config.AV["OutputVerPosition"] = {
     sid: 51,
     data: {
         min: 0,
-        max: 16383
+        max: 5000
     }
 }
 test.config.AV["OutputHorSize"] = {
@@ -789,7 +750,7 @@ test.config.AV["OutputHorSize"] = {
     sid: 52,
     data: {
         min: 0,
-        max: 16383
+        max: 5000
     }
 }
 test.config.AV["OutputVerSize"] = {
@@ -798,7 +759,7 @@ test.config.AV["OutputVerSize"] = {
     sid: 53,
     data: {
         min: 0,
-        max: 16383
+        max: 5000
     }
 }
 test.config.AV["ZoomBHorPosition"] = {
@@ -1443,11 +1404,30 @@ test.config.AV["ExtAudioADir"] = {
         }
     ]
 }
+test.config.AV["ExtAudioASource_1"] = {
+    title: "Analog Audio Port Source",
+    type: "list",
+    sid: 105,
+    data: [
+    		{
+            name: "Audio Matrix",
+            value: 0
+        },
+        {
+            name: "HDMI",
+            value: 1
+        }
+    ]
+}
 test.config.AV["ExtAudioASource"] = {
     title: "Analog Audio Port Source",
     type: "list",
     sid: 105,
     data: [
+    		{
+            name: "Audio Matrix",
+            value: 0
+        },
         {
             name: "HDMI",
             value: 1
@@ -1466,13 +1446,18 @@ test.config.AV["HDMIOutAudioSelect"] = {
         {
             name: "Auto",
             value: 0
-        }, {
+        }, 
+        {
             name: "HDMI",
             value: 1
         },
         {
             name: "Analog Audio",
             value: 2
+        },
+        {
+            name: "Audio Matrix",
+            value: 3
         }
     ]
 }
@@ -1522,24 +1507,6 @@ test.config.AV["OUT_HSYNC_INVERT"] = {
     data: {
         min: 0,
         max: 1
-    }
-}
-test.config.AV["CliperRefHSize"] = {
-    title: "Clipper H Size",
-    type: "slider",
-    sid: 152,
-    data: {
-        min: 1,
-        max: 200
-    }
-}
-test.config.AV["CliperRefVSize"] = {
-    title: "Clipper V Size",
-    type: "slider",
-    sid: 153,
-    data: {
-        min: 1,
-        max: 200
     }
 }
 test.config.AV["G-offset"] = {
@@ -1673,7 +1640,6 @@ test.config.AV["B-gain"] = {
         max: 63
     }
 }
-
 test.config.AV["ST_0IN_1OUT"] = {
     title: "Analog Audio Port Direction",
     type: "list",
@@ -1705,11 +1671,17 @@ test.config.AV["ST_0IN_1OUT_2ARC"] = {
         }
     ]
 }
-test.config.AV["A10027Version"] = {
-    title: "A10-027 Version",
-    type: "static",
+test.config.AV["ClipperEn"] = {
+    title: "Clipper",
+    type: "list",
     sid: 159,
-    data: ""
+    data: [{
+        name: "Normal(Not Clipper)",
+        value: 0
+    }, {
+        name: "Clipper",
+        value: 1
+    }]
 }
 test.config.AV["AutoSyncOff"] = {
     title: "Auto SYNC OFF",
@@ -1726,9 +1698,102 @@ test.config.AV["AutoSyncOff"] = {
         value: 2
     }]
 }
-
-
-test.config.AV["HDMIOutAudioSelect_12"] = {
+test.config.AV["SeamlessEnable"] = {
+    title: "Out Video Mode",
+    type: "list",
+    sid: 14,
+    data: [
+        {
+            name: "Normal",
+            value: 0
+        },
+        {
+            name: "Seamless",
+            value: 2
+        }
+    ]
+}
+test.config.AV["SeamlessMode"] = {
+    title: "Seamless Mode",
+    type: "list",
+    sid: 15,
+    data: [
+        {
+            name: "Normal",
+            value: 0
+        }, {
+            name: "Window Shade",
+            value: 1
+        }, {
+            name: "Zoom In",
+            value: 2
+        }
+    ]
+}
+test.config.AV["CliperRefHSize"] = {
+    title: "CliperRefHSize",
+    type: "static",
+    sid: 152,
+    data: ''
+}
+test.config.AV["CliperRefVSize"] = {
+    title: "CliperRefVSize",
+    type: "static",
+    sid: 153,
+    data: ''
+}
+test.config.AV["SeamlessAction"] = {
+    title: "Switch Transition",
+    type: "list",
+    sid: 154,
+    data: [{
+        name: "Normal(Not Seamless)",
+        value: 0
+    }, {
+        name: "Seamless 1to1",
+        value: 1
+    }, {
+        name: "Seamless 2to1",
+        value: 2
+    }, {
+        name: "Seamless fade 1to1",
+        value: 3
+    }, {
+        name: "Seamless fade 2to1",
+        value: 4
+    }, {
+        name: "Seamless cut 1to1",
+        value: 5
+    }, {
+        name: "Seamless cut 2to1",
+        value: 6
+    }]
+}
+test.config.AV["PiPAction"] = {
+    title: "PIP",
+    type: "list",
+    sid: 157,
+    data: [{
+        name: "Normal(Not PIP)",
+        value: 0
+    }, {
+        name: "PIP",
+        value: 1
+    }]
+}
+test.config.AV["ClipperEn"] = {
+    title: "Clipper",
+    type: "list",
+    sid: 159,
+    data: [{
+        name: "Normal(Not Clipper)",
+        value: 0
+    }, {
+        name: "Clipper",
+        value: 1
+    }]
+}
+test.config.AV["HDMIOutAudioSelect_2"] = {
     title: "HDMI Audio Source",
     type: "list",
     sid: 106,
@@ -1743,11 +1808,49 @@ test.config.AV["HDMIOutAudioSelect_12"] = {
         }
     ]
 }
+test.config.AV["HDMIOutAudioSelect_12"] = {
+    title: "HDMI Audio Source",
+    type: "list",
+    sid: 106,
+    data: [
+        {
+            name: "Auto",
+            value: 0
+        }, 
+        {
+            name: "HDMI",
+            value: 1
+        },
+        {
+            name: "Analog Audio",
+            value: 2
+        }
+    ]
+}
+test.config.AV["HDMIOutAudioSelect_3"] = {
+    title: "HDMI Audio Source",
+    type: "list",
+    sid: 106,
+    data: [
+        {
+            name: "HDMI",
+            value: 1
+        },
+        {
+            name: "Audio Matrix",
+            value: 3
+        }
+    ]
+}
 test.config.AV["HDMIOutAudioSelect_13"] = {
     title: "HDMI Audio Source",
     type: "list",
     sid: 106,
     data: [
+        {
+            name: "Auto",
+            value: 0
+        }, 
         {
             name: "HDMI",
             value: 1
@@ -1794,6 +1897,12 @@ test.config.AV["VideoAspectRatio_0F"] = {
         value: 3
     }]
 }
+test.config.AV["A10027Version"] = {
+    title: "A10-027 Version",
+    type: "static",
+    sid: 159,
+    data: ""
+}
 /**
  * 配置文件
  * 音频接口
@@ -1810,32 +1919,63 @@ test.config.AV["VideoAspectRatio_0F"] = {
  * 配置文件
  * 端口管理
  */
-test.PortAvOK = function (portData, index, dir) {
+test.PortAvOK = function (portData, index,dir) {
     var i;
-    var data = [];
-    console.log("The value is " + JSON.stringify(test.PortInfo.info))
-    for (i = 0; i < portData.length; i++) {
-        if (portData[i].type != "static" || portData[i].type != "staticList") {
+    var data = {};
+    data.status=true;
+    data.ErrorText="";
+    data.data=[];
+    console.log("The value is " + JSON.stringify(portData))
+    for (i = 0; i < portData.length; i++) 
+    {
+        if (portData[i].type != "static" || portData[i].type != "staticList") 
+        {
             var value = {};
-            // if (portData[i].type == "slider") {
-            //     // portData[i].lastervalue = portData[i].lastervalue.replace(/[^a-zA-Z0-9_-]/g, '');
-            //     if (portData[i].lastervalue == "") {
-            //         portData[i].lastervalue = portData.info[i].oldvalue;
-            //     }
-            // }
-            if (portData[i].oldvalue != portData[i].lastervalue) {
+            if (portData[i].type == "inputNum") 
+            {
+                // portData[i].lastervalue = portData[i].lastervalue.replace(/[^a-zA-Z0-9_-]/g, '');
+                if (portData[i].lastervalue === "") 
+                {
+                    portData[i].lastervalue = portData.info[i].oldvalue;
+                }
+            }
+            else if(portData[i].type == "slider")
+            {
+                console.log("The lastervalue is "+portData[i].lastervalue);
+                if (portData[i].lastervalue === "") 
+                {
+                    console.log("the "+portData[i].id +"is null ");
+                    portData[i].lastervalue = portData[i].oldvalue;
+                }
+                if(portData[i].lastervalue<portData[i].value.min||portData[i].lastervalue>portData[i].value.max)
+                {
+                    let error=portData[i].id+" Data Error"
+                    console.log(error );
+                    data.ErrorText=error;
+                    break;
+                }
+            }
+            if (portData[i].oldvalue != portData[i].lastervalue) 
+            {
                 console.log("have different");
                 let ht = {
                     index: index,
                     sid: portData[i].sid,
                     value: portData[i].lastervalue,
-                    dir: dir
+                    dir:dir
                 }
-                data.push(ht)
+                test.BasePortInfo.info[i].oldvalue=portData[i].lastervalue;
+                test.BasePortInfo.info[i].lastervalue=portData[i].lastervalue;
+                data.data.push(ht)
             }
         }
     }
+    if(i<portData.length)
+    {
+        data.status=false;
+    }
     console.log(JSON.stringify(data));
+    console.log(JSON.stringify(test.BasePortInfo.info));
     return data;
 }
 test.PortCancel = function () {

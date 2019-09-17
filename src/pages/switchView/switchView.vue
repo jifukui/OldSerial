@@ -406,17 +406,17 @@ export default {
         }
       };
       let that = this;
-      this.$axios
-        .post("/cgi-bin/ligline.cgi", aoData)
-        .then(function(response) {
-          if (response.data.status == "SUCCESS") {
-            //that.getOnline();
-          } else if (response.data.status == "ERROR") {
-          }
-        })
-        .catch(function(error) {
-          console.log(error);
-        });
+      this.$axios.post("/cgi-bin/ligline.cgi", aoData).then(function(response) {
+        if (response.data.status == "SUCCESS") 
+        {
+          //that.getOnline();
+        } 
+        else if (response.data.status == "ERROR") 
+        {
+        }
+      }).catch(function(error) {
+        console.log(error);
+      });
     },
     //多切功能
     selectedSwitchAll(items, index) {
@@ -425,6 +425,7 @@ export default {
       let routingData = "";
       let that = this;
       that.switchLoading = true;
+      that.$store.state.PageLoading=true;
       for (let i = 0; i < that.aoData.length; i++) 
       {
         that.aoData[i].link_status = "false";
@@ -449,47 +450,47 @@ export default {
         cmd: "VideoSetting",
         Data: routingData
       };
-      this.$axios
-        .post("/cgi-bin/ligline.cgi", aoData)
-        .then(function(response) {
-          if (response.data.status == "SUCCESS") 
+      this.$axios.post("/cgi-bin/ligline.cgi", aoData).then(function(response) {
+        if (response.data.status == "SUCCESS") 
+        {
+          for (let i = 0; i < that.aoData.length; i++) 
           {
-            for (let i = 0; i < that.aoData.length; i++) 
+            that.aoData[i].link_status = "false";
+            for (let j = 0; j < that.aoData[i].sourceGroup.length; j++) 
             {
-              that.aoData[i].link_status = "false";
-              for (let j = 0; j < that.aoData[i].sourceGroup.length; j++) 
-              {
-                that.aoData[i].sourceGroup[j].link_status = "no";
-              }
+              that.aoData[i].sourceGroup[j].link_status = "no";
             }
-            for (let o = 0; o < that.aoData.length; o++) 
+          }
+          for (let o = 0; o < that.aoData.length; o++) 
+          {
+            if (that.aoData[o].indexTitle == index) 
             {
-              if (that.aoData[o].indexTitle == index) 
+              that.aoData[o].link_status = "true";
+              for (let k = 0; k < that.aoData[o].sourceGroup.length; k++) 
               {
-                that.aoData[o].link_status = "true";
-                for (let k = 0; k < that.aoData[o].sourceGroup.length; k++) 
+                for (let w = 0; w < aoOut.length; w++) 
                 {
-                  for (let w = 0; w < aoOut.length; w++) 
+                  if (that.aoData[o].sourceGroup[k].indexTitle == aoOut[w]) 
                   {
-                    if (that.aoData[o].sourceGroup[k].indexTitle == aoOut[w]) 
-                    {
-                      that.aoData[o].sourceGroup[k].link_status = "true";
-                    }
+                    that.aoData[o].sourceGroup[k].link_status = "true";
                   }
                 }
               }
             }
-            that.switchLoading = false;
-          } 
-          else if (response.data.status == "ERROR") 
-          {
-            that.switchLoading = false;
           }
-        })
-        .catch(function(error) {
           that.switchLoading = false;
-          console.log(error);
-        });
+          that.$store.state.PageLoading=false;
+        } 
+        else if (response.data.status == "ERROR") 
+        {
+          that.switchLoading = false;
+          that.$store.state.PageLoading=false;
+        }
+      }).catch(function(error) {
+        that.switchLoading = false;
+        that.$store.state.PageLoading=false;
+        console.log(error);
+      });
     },
     showInfo(index, item, isPosition) 
     {

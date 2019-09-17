@@ -48,7 +48,7 @@
               </td>
               <td width="35%" v-if="item.type === 'list'">{{ item.id }}:</td>
               <td width="65%" v-if="item.type === 'list'">
-                <select v-model="item.lastervalue">
+                <select v-model="item.lastervalue" @change="listchange(item,index)">
                   <option
                     v-for="(item, index) in item.value"
                     :key="index"
@@ -59,17 +59,23 @@
               </td>
               <td width="35%" v-if="item.type === 'slider'">{{ item.id }}:</td>
               <td width="65%" v-if="item.type === 'slider'">
-                <div class="block">
+                <div class="block fl" style="width:85%">
                   <el-slider
-                    :min="item.value.min"
-                    :max="item.value.max"
-                    show-input
-                    :show-input-controls="false"
-                    @change="change(item)"
-                    v-model="item.lastervalue"
-                    input-size="mini">
-                  </el-slider>
+                  style="width:90%"
+                  :min="item.value.min"
+                  :max="item.value.max"
+                  @change="sliderchange(item,index)"
+                  v-model="item.lastervalue"
+                  input-size="mini"
+                  ></el-slider>
                 </div>
+                <input
+                  style="width:12%"
+                  v-model="item.lastervalue"
+                  type="text"
+                  @keyup="silderInputInput(item,index)"
+                  @change="silderInputChange(item,index)"
+                />
               </td>
               <td width="35%" v-if="item.type === 'switch'">{{ item.id }}:</td>
               <td width="65%" v-if="item.type === 'switch'">
@@ -121,7 +127,8 @@
                 <el-button
                   class="btn"
                   type="primary"
-                  @click="saveBtn(isActive,dir)">
+                  @click="saveBtn(isActive,dir)"
+                  :disabled= !HaveChange>
                   Save Changes
                 </el-button>
               </td>
@@ -133,13 +140,6 @@
           <div class="nocard">No Port</div>
         </div>
       </div>
-
-      <!-- <div
-        style="width:570px"
-        v-loading="loading"
-        v-show="portInfoLoadding"
-      >
-      </div> -->
     </div>
   </div>
 </template>
@@ -162,13 +162,38 @@ export default {
       isPort: true,
       portTitle: "",
       selectportInfo: "",
-      isNeedSave: true
+      isNeedSave: true,
+      HaveChange:false,
+      ChangeFlag:[]
     };
   },
-  watch: {},
+  watch: {
+    ChangeFlag:function(value)
+    {
+      let that =this;
+      console.log("The data is "+JSON.stringify(value));
+      let i=0;
+      for(i;i<value.length;i++)
+      {
+        if(value[i]!=0)
+        {
+          break;
+        }
+      }
+      if(i<value.length)
+      {
+        that.HaveChange=true;
+      }
+      else
+      {
+        that.HaveChange=false;
+      }
+    }
+  },
   computed: {},
   methods: {
-    inpNum(item, min, max) {
+    inpNum(item, min, max) 
+    {
       console.log(item.lastervalue);
       console.log(min);
       console.log(max);
@@ -181,7 +206,8 @@ export default {
         item.lastervalue = item.oldvalue;
         return false;
       }
-      if (item.lastervalue < min || item.lastervalue > max) {
+      if (item.lastervalue < min || item.lastervalue > max) 
+      {
         this.$alert("Data out of range", "Prompt information", {
           confirmButtonText: "OK",
           callback: action => {}
@@ -190,7 +216,8 @@ export default {
         return false;
       }
     },
-    inpNum2(item) {
+    inpNum2(item) 
+    {
       let r = /^([1-9]\d*|[0]{1,1})$/;
       if (!r.test(item.lastervalue)) {
         this.$alert("Data type error", "Prompt information", {
@@ -201,34 +228,48 @@ export default {
         return false;
       }
     },
-    change(item) {
+    sliderchange(item,index) {
       console.log("===============", Math.floor(item.lastervalue));
-      return (item.lastervalue = Math.floor(item.lastervalue));
+      let that=this;
+      item.lastervalue = Math.floor(item.lastervalue);
+      if(item.lastervalue==item.oldvalue)
+      {
+        that.ChangeFlagData(index,false);
+      }
+      else
+      {
+        that.ChangeFlagData(index,true);
+      }
+      console.log("silder data is "+JSON.stringify(item));
     },
-    clickBtn(index, info, dir) {
+    clickBtn(index, info, dir) 
+    {
       let confirmValue = "";
-      if (info == 1) {
+      if (info == 1) 
+      {
         confirmValue = "RESET port to repower ? <br/>Press OK to confirm";
-      } else if (info == 2) {
-        confirmValue =
-          "RESET port to factory default ? <br/>Press OK to confirm";
+      } 
+      else if (info == 2) 
+      {
+        confirmValue ="RESET port to factory default ? <br/>Press OK to confirm";
       }
       let that = this;
       let savedir = "";
-      if (dir == "in") {
+      if (dir == "in") 
+      {
         savedir = 0;
-      } else {
+      } 
+      else 
+      {
         savedir = 1;
       }
-      that
-        .$confirm(confirmValue, "Prompt information", {
+      that.$confirm(confirmValue, "Prompt information", {
           confirmButtonText: "Ok",
           cancelButtonText: "Cancel",
           type: "warning",
           closeOnClickModal: false,
           dangerouslyUseHTMLString: true
-        })
-        .then(() => {
+        }).then(() => {
           var data = {
             cmd: "SetPortFunc",
             Data: [
@@ -241,281 +282,440 @@ export default {
             ]
           };
           console.log("The data is " + JSON.stringify(data));
-          this.$axios
-            .post("/cgi-bin/ligline.cgi", data)
-            .then(function(response) {
-              if (response.data.status == "SUCCESS") {
-                that.$alert("Save success", "Prompt information", {
-                  confirmButtonText: "OK",
-                  callback: action => {
-                    that.selectPortInfo(that.isActive);
-                  }
-                });
-              } else if (response.data.status == "ERROR") {
-                that.$alert(response.data.error, "Prompt information", {
-                  confirmButtonText: "OK",
-                  callback: action => {
-                    that.selectPortInfo(that.isActive);
-                  }
-                });
-              }
-            })
-            .catch(function(error) {
+          this.$axios.post("/cgi-bin/ligline.cgi", data).then(function(response) 
+          {
+            if (response.data.status == "SUCCESS") 
+            {
+              that.$alert("Save success", "Prompt information", {
+                confirmButtonText: "OK",
+                callback: action => {
+                  that.selectPortInfo(that.isActive);
+                }
+              });
+            } 
+            else if (response.data.status == "ERROR") 
+            {
+              that.$alert(response.data.error, "Prompt information", {
+                confirmButtonText: "OK",
+                callback: action => {
+                  that.selectPortInfo(that.isActive);
+                }
+              });
+            }
+          }).catch(function(error) {
               console.log(error);
             });
-        })
-        .catch(() => {
+        }).catch(() => {
           let sendata = {
             resetSure: "取消重置信息"
           };
         });
     },
-    selectPortInfo(index) {
+    /**选择端口的信息 */
+    selectPortInfo(index) 
+    {
+      console.log("The index is "+index);
       let that = this;
       that.loading = true;
       let portList = [];
       let portNumber = that.$store.state.portNumber;
       that.isActive = index;
-      if (portNumber == 16) {
+      if (portNumber == 16) 
+      {
         that.$axios(that.$indexJsonUrl).then(response => {
           portList = response.data.Port;
           that.showPortInfo(portList, index);
         });
-      } else if (portNumber == 32) {
+      } 
+      else if (portNumber == 32) 
+      {
         that.$axios(that.$indexJsonUrl32).then(response => {
           portList = response.data.Port;
           that.showPortInfo(portList, index);
         });
-      } else if (portNumber == 64) {
+      } 
+      else if (portNumber == 64) 
+      {
         that.$axios(that.$indexJsonUrl64).then(response => {
           portList = response.data.Port;
           that.showPortInfo(portList, index);
         });
       }
     },
+    /**显示端口信息 */
     showPortInfo(portList, index) {
       let that = this;
-      this.$axios
-        .get("/configuration.json")
-        .then(response => {
-          let listInfo = response.data.data.port;
-          let cardInfo = response.data.data.card;
-          let portNumber = that.$store.state.portNumber;
-          for (let i = 0; i < portList.length; i++) {
-            for (let j = 0; j < listInfo.in.length; j++) {
-              if (portList[i].portIndex == listInfo.in[j].index) {
-                Object.assign(portList[i], listInfo.in[j]);
+      /**读取信息 */
+      this.$axios.get("/configuration.json").then(response => {
+        /**端口信息 */
+        let listInfo = response.data.data.port;
+        /**板卡信息 */
+        let cardInfo = response.data.data.card;
+        /**端口数量 */
+        let portNumber = that.$store.state.portNumber;
+        /**设置端口参数 */
+        for (let i = 0; i < portList.length; i++) 
+        {
+          for (let j = 0; j < listInfo.in.length; j++) 
+          {
+            if (portList[i].portIndex == listInfo.in[j].index) 
+            {
+              Object.assign(portList[i], listInfo.in[j]);
+            }
+          }
+          for (let j = 0; j < listInfo.out.length; j++) 
+          {
+            if (portList[i].portIndex == listInfo.out[j].index) 
+            {
+              Object.assign(portList[i], listInfo.out[j]);
+            }
+          }
+          /**添加端口的类型 */
+          if (portNumber == 16) 
+          {
+            for (let j = 0; j < cardInfo.length; j++) 
+            {
+              if (Math.ceil(portList[i].portIndex / 2) == cardInfo[j].slot) 
+              {
+                portList[i].portType = cardInfo[j].name;
               }
             }
-            for (let j = 0; j < listInfo.out.length; j++) {
-              if (portList[i].portIndex == listInfo.out[j].index) {
-                Object.assign(portList[i], listInfo.out[j]);
+          } 
+          else if (portNumber == 32) 
+          {
+            for (let j = 0; j < cardInfo.length; j++) 
+            {
+              if (Math.ceil(portList[i].portIndex / 4) == cardInfo[j].slot) 
+              {
+                portList[i].portType = cardInfo[j].name;
               }
             }
-            if (portNumber == 16) {
-              for (let j = 0; j < cardInfo.length; j++) {
-                if (Math.ceil(portList[i].portIndex / 2) == cardInfo[j].slot) {
-                  portList[i].portType = cardInfo[j].name;
-                }
-              }
-            } else if (portNumber == 32) {
-              for (let j = 0; j < cardInfo.length; j++) {
-                if (Math.ceil(portList[i].portIndex / 4) == cardInfo[j].slot) {
-                  portList[i].portType = cardInfo[j].name;
-                }
-              }
-            } else if (portNumber == 64) {
-              for (let j = 0; j < cardInfo.length; j++) {
-                if (Math.ceil(portList[i].portIndex / 8) == cardInfo[j].slot) {
-                  portList[i].portType = cardInfo[j].name;
-                }
+          } 
+          else if (portNumber == 64) 
+          {
+            for (let j = 0; j < cardInfo.length; j++) 
+            {
+              if (Math.ceil(portList[i].portIndex / 8) == cardInfo[j].slot) 
+              {
+                portList[i].portType = cardInfo[j].name;
               }
             }
           }
-          for (let j = 0; j < portList.length; j++) 
+        }
+        //console.log("port list is "+JSON.stringify(portList));
+        for (let j = 0; j < portList.length; j++) 
+        {
+          if (index == portList[j].portIndex) 
           {
-            if (index == portList[j].portIndex) 
+            that.dir = portList[j].dir;
+            that.portTitle = portList[j].title;
+            /**端口类型错误 */
+            if (portList[j].typeid < 0) 
             {
-              that.dir = portList[j].dir;
-              // that.content = items;
-              that.portTitle = portList[j].title;
-              /**端口类型错误 */
-              if (portList[j].typeid < 0) 
+              that.isPort = false;
+              that.loading = false;
+            } 
+            else 
+            {
+              that.isPort = true;
+              that.value = "";
+              that.setData = "";
+              let staticAoData = [];
+              let setInfo = [];
+              for (var i in portList[j]) 
               {
-                that.isPort = false;
-                that.loading = false;
+                if (
+                  i == "index" ||
+                  i == "dir" ||
+                  i == "type" ||
+                  i == "typeid" ||
+                  i == "portType"
+                ) 
+                {
+                  let iName = "";
+                  if (portList[j][i] == "v") 
+                  {
+                    portList[j][i] = "Video Matrix";
+                  }
+                  if (portList[j][i] == "a") 
+                  {
+                    portList[j][i] = "Audio Matrix";
+                  }
+                  if (portList[j][i] == "av") 
+                  {
+                    portList[j][i] = "Audio & Video Matrix";
+                  }
+                  if (i == "index") 
+                  {
+                    iName = "Index";
+                  }
+                  if (i == "dir") 
+                  {
+                    iName = "Direction";
+                  }
+                  if (i == "type") 
+                  {
+                    iName = "Matrix Type";
+                  }
+                  if (i == "typeid") 
+                  {
+                    iName = "Typeid";
+                  }
+                  if (i == "portType") 
+                  {
+                    iName = "Port Type";
+                  }
+                  let ht = {
+                    id: iName,
+                    value: portList[j][i]
+                  };
+                  staticAoData.push(ht);
+                  //consoleconsole.log("static data is "+JSON.stringify(staticAoData));
+                }
+                if (portList[j][i].sid) 
+                {
+                  let ht1 = {
+                    Name: i,
+                    Value: portList[j][i].value
+                  };
+                  setInfo.push(ht1);
+                  //console.log("data is "+JSON.stringify(setInfo));
+                }
+              }
+              if (setInfo.length == 1 && setInfo[0].Name == "EDID") 
+              {
+                that.isNeedSave = false;
               } 
-              /**端口类型正确 */
               else 
               {
-                that.isPort = true;
-                that.value = "";
-                that.setData = "";
-                let staticAoData = [];
-                let setInfo = [];
-                for (var i in portList[j]) 
-                {
-                  if (
-                    i == "index" ||
-                    i == "dir" ||
-                    i == "type" ||
-                    i == "typeid" ||
-                    i == "portType"
-                  ) 
-                  {
-                    let iName = "";
-                    if (portList[j][i] == "v") {
-                      portList[j][i] = "Video Matrix";
-                    }
-                    if (portList[j][i] == "a") {
-                      portList[j][i] = "Audio Matrix";
-                    }
-                    if (portList[j][i] == "av") {
-                      portList[j][i] = "Audio & Video Matrix";
-                    }
-                    if (i == "index") {
-                      iName = "Index";
-                    }
-                    if (i == "dir") {
-                      iName = "Direction";
-                    }
-                    if (i == "type") {
-                      iName = "Matrix Type";
-                    }
-                    if (i == "typeid") {
-                      iName = "Typeid";
-                    }
-                    if (i == "portType") {
-                      iName = "Port Type";
-                    }
-                    let ht = {
-                      id: iName,
-                      value: portList[j][i]
-                    };
-                    staticAoData.push(ht);
-                  }
-                  if (portList[j][i].sid) {
-                    let ht1 = {
-                      Name: i,
-                      Value: portList[j][i].value
-                    };
-                    setInfo.push(ht1);
-                  }
-                }
-                if (setInfo.length == 1 && setInfo[0].Name == "EDID") 
-                {
-                  that.isNeedSave = false;
-                } 
-                else 
-                {
-                  that.isNeedSave = true;
-                }
-                that.staticData = staticAoData;
-                that.value = that.$conf.PortInitAv(setInfo, portList[j].Dir,portNumber);
-                that.setData = that.$conf.PortInfoAv.info;
-                that.loading = false;
+                that.isNeedSave = true;
               }
+              that.staticData = staticAoData;
+              that.value = that.$conf.PortInitAv(setInfo, portList[j].Dir,portNumber);
+              that.setData = that.$conf.PortInfoAv.info;
+              that.loading = false;
             }
           }
-        })
-        .catch(function(error) {
-          console.log(error);
-        });
+        }
+      }).catch(function(error) {
+        console.log(error);
+      });
     },
-    saveBtn(index, dir) {
+    /**设置端口参数 */
+    saveBtn(index, dir) 
+    {
       console.log(this.$conf.PortInfoAv.info);
+      this.ChangeFlag=new Array();
       var data = {};
       let that = this;
       let savedir = "";
-      if (dir == "in") {
+      let val={};
+      if (dir == "in") 
+      {
         savedir = 0;
-      } else {
+      } 
+      else 
+      {
         savedir = 1;
       }
       data.cmd = "SetPortFunc";
       data.Data = [];
-      data.Data = this.$conf.PortAvOK(
+      val = this.$conf.PortAvOK(
         this.$conf.PortInfoAv.info,
         index,
         savedir
       );
-      console.log("The data is " + JSON.stringify(data));
-      this.$axios
-        .post("/cgi-bin/ligline.cgi", data)
-        .then(function(response) {
-          if (response.data.status == "SUCCESS") {
-            that.$alert("Save success", "Prompt information", {
-              confirmButtonText: "OK",
-              callback: action => {
-                that.selectPortInfo(that.isActive);
-              }
-            });
-          } else if (response.data.status == "ERROR") {
-            that.$alert(response.data.error, "Prompt information", {
-              confirmButtonText: "OK",
-              callback: action => {
-                that.selectPortInfo(that.isActive);
-              }
-            });
+      data.Data=val.data;
+      if(!val.status)
+      {
+        that.$message(
+          {
+            message: val.ErrorText,
+            type: "warning"
           }
-        })
-        .catch(function(error) {
+        );
+        return false;
+      }
+      if (data.Data.length == 0) {
+        that.$alert(
+          "Please set relevant parameters before saving.",
+          "Prompt information",
+          {
+            confirmButtonText: "OK",
+            callback: action => {
+              that.ChangeFlag=new Array();
+            }
+          }
+        );
+        return false;
+      }
+      that.ChangeFlag=new Array();
+      console.log("The data is " + JSON.stringify(data));
+      this.$axios.post("/cgi-bin/ligline.cgi", data).then(function(response) 
+      {
+        that.$conf.PortInfoAv.info=JSON.parse(JSON.stringify(that.$conf.BasePortInfo.info));
+        that.setData=that.$conf.PortInfoAv.info;
+        if (response.data.status == "SUCCESS") 
+        {
+          that.$alert("Save success", "Prompt information", {
+            confirmButtonText: "OK",
+            callback: action => {
+              that.selectPortInfo(that.isActive);
+            }
+          });
+        } 
+        else if (response.data.status == "ERROR") 
+        {
+          that.$alert(response.data.error, "Prompt information", {
+            confirmButtonText: "OK",
+            callback: action => {
+              that.selectPortInfo(that.isActive);
+            }
+          });
+        }
+      }).catch(function(error) {
           console.log(error);
         });
     },
+    /**获取配置文件的同时获取端口的在线状态 */
     getOnline(list) {
       let that = this;
       let aoData = {
         cmd: "PortOnline"
       };
-      this.$axios
-        .post("/cgi-bin/ligline.cgi", aoData)
-        .then(function(response) {
-          if (response.data.status == "SUCCESS") {
-            let onlineInfo = response.data.echo.result.Data;
-            for (let j = 0; j < list.length; j++) {
-              for (let i = 0; i < onlineInfo.length; i++) {
-                if (list[j].portIndex == onlineInfo[i].PortIndex) {
-                  list[j].OnlineStatus = onlineInfo[i].OnlineStatus;
+      this.$axios.post("/cgi-bin/ligline.cgi", aoData).then(function(response) 
+      {
+        if (response.data.status == "SUCCESS") 
+        {
+          let onlineInfo = response.data.echo.result.Data;
+          for (let j = 0; j < list.length; j++) 
+          {
+            for (let i = 0; i < onlineInfo.length; i++) 
+            {
+              if (list[j].portIndex == onlineInfo[i].PortIndex) 
+              {
+                list[j].OnlineStatus = onlineInfo[i].OnlineStatus;
+                if(onlineInfo[i].OnlineStatus==false)
+                {
+                  list.splice(j,1);
                 }
               }
             }
-            that.portList=JSON.parse(JSON.stringify(list));
-          } else if (response.data.status == "ERROR") {
           }
-        })
-        .catch(function(error) {
+          //console.log("getOnline");
+          that.portList=JSON.parse(JSON.stringify(list));
+          that.selectPortInfo(that.portList[0].portIndex);
+        } 
+        else if (response.data.status == "ERROR") 
+        {
+        }
+        }).catch(function(error) {
           console.log(error);
         });
     },
-    getJson() {
+    /**根据端口数量的不同获取不同的配置文件 */
+    getJson() 
+    {
       let that = this;
       let portNumber = that.$store.state.portNumber;
-      if (portNumber == 16) {
+      if (portNumber == 16) 
+      {
         that.$axios(that.$indexJsonUrl).then(response => {
           let portList = response.data.Port;
           that.getOnline(portList);
-          that.selectPortInfo(1);
+          //console.log("getJson");
+          //console.log("port list is "+JSON.stringify(that.portList));
+          //that.selectPortInfo(that.portList[0].portIndex);
         });
-      } else if (portNumber == 32) {
+      } 
+      else if (portNumber == 32) 
+      {
         that.$axios(that.$indexJsonUrl32).then(response => {
           let portList = response.data.Port;
           that.getOnline(portList);
-          that.selectPortInfo(1);
+          //that.selectPortInfo(that.portList[0].portIndex);
         });
-      } else if (portNumber == 64) {
+      } 
+      else if (portNumber == 64) 
+      {
         that.$axios(that.$indexJsonUrl64).then(response => {
           let portList = response.data.Port;
           that.getOnline(portList);
-          that.selectPortInfo(1);
+          //that.selectPortInfo(that.portList[0].portIndex);
         });
       }
+    },
+    silderInputChange(item,index)
+    {
+      let that=this;
+      console.log("have change "+item.id);
+      let data;
+      data=parseInt(item.lastervalue);
+      if(item.lastervalue==item.oldvalue)
+      {
+        that.ChangeFlagData(index,false);
+      }
+      else
+      {
+        that.ChangeFlagData(index,true);
+      }
+      if(isNaN(data)||data<item.value.min||data>item.value.max)
+      {
+        console.log("data error");
+      }
+      else
+      {
+        item.lastervalue=data;
+      }
+      console.log("data is "+JSON.stringify(item));
+    },
+    silderInputInput(item,index)
+    {
+      let that=this;
+      item.lastervalue=item.lastervalue.replace(/\D/g,'');
+      if(item.lastervalue==item.oldvalue)
+      {
+        that.ChangeFlagData(index,false);
+      }
+      else
+      {
+        that.ChangeFlagData(index,true);
+      }
+    },
+    listchange(item,index){
+      console.log("list change ");
+      let that=this;
+      if(item.oldvalue==item.lastervalue)
+      {
+        that.ChangeFlagData(index,false);
+      }
+      else
+      {
+        that.ChangeFlagData(index,true);
+      }
+    },
+    ChangeFlagData(index,flag)
+    {
+      let that=this;
+      let i=parseInt(index/32);
+      let n=index%32;
+      let data=JSON.parse(JSON.stringify(that.ChangeFlag));
+      if(flag)
+      {
+        data[i]|=(1<<n);
+      }
+      else
+      {
+        data[i]&=(~(1<<n));
+      }
+      that.ChangeFlag=data;
     }
   },
   created() {
     this.getJson();
   },
   mounted() {
+    this.$store.state.Settingsname='third';
     if (window.getDeviceInterval) {
       window.clearInterval(window.getDeviceInterval);
     }

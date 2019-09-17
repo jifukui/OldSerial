@@ -19,8 +19,7 @@
                     ? 'equipment_information_two_input'
                     : 'equipment_information_two_input1'
                 "
-                @focus="Check('name')"
-                @blur="Blur('name')"
+                @keyup="Check('name')"
                 type="text"
                 id
                 ref="nameInp"
@@ -55,13 +54,6 @@
                 @click="uplaodFile()"
               >Browse</el-button>
             </p>
-            <!-- 文件名称 -->
-            <!-- <p>
-              <span style="white-space:normal;word-wrap: break-word;">
-                <p style="margin:0">{{ fileName }}</p>
-              </span>
-            </p> -->
-            <!-- 上传进度条 -->
             <p>
               <el-progress 
                 :percentage="fileGrogress" 
@@ -69,24 +61,6 @@
                 :status="uploadStatus"
               ></el-progress>
             </p>
-            <!-- 开始上传 -->
-            <!-- <p class="line40">
-              <el-button
-                class="btn"
-                type="primary"
-                @click="getfileInfo($event)"
-                :disabled="isFile == true ? false : true"
-              >Upload</el-button>
-            </p> -->
-            <!-- 开始升级 -->
-            <!-- <p class="line40">
-              <el-button
-                class="btn"
-                type="primary"
-                @click="Upgrade()"
-                :disabled="isUpgrade == true ? false : true"
-              >Start Upgrade</el-button>
-            </p> -->
           </div>
         </div>
         <div class="box">
@@ -108,12 +82,12 @@
                     ? 'equipment_information_two_input'
                     : 'equipment_information_two_input1'
                 "
-                @focus="Check('ip')"
-                @blur="Blur('ip')"
+                @keyup="Check('ip')"
                 type="text"
                 id
                 ref="ipInp"
                 value
+                :disabled="ckeckVal==true?true:false"
               >
             </p>
 
@@ -124,12 +98,12 @@
                     ? 'equipment_information_two_input'
                     : 'equipment_information_two_input1'
                 "
-                @focus="Check('mask')"
-                @blur="Blur('mask')"
+                @keyup="Check('mask')"
                 type="text"
                 id
                 ref="subnetMask"
                 value
+                :disabled="ckeckVal==true?true:false"
               >
             </p>
 
@@ -140,12 +114,12 @@
                     ? 'equipment_information_two_input'
                     : 'equipment_information_two_input1'
                 "
-                @focus="Check('gateway')"
-                @blur="Blur('gateway')"
+                @keyup="Check('gateway')"
                 type="text"
                 id
                 ref="gateway"
                 value
+                :disabled="ckeckVal==true?true:false"
               >
             </p>
 
@@ -156,8 +130,7 @@
                     ? 'equipment_information_two_input'
                     : 'equipment_information_two_input1'
                 "
-                @focus="Check('tcp')"
-                @blur="Blur('tcp')"
+                @keyup="Check('tcp')"
                 type="text"
                 id
                 ref="tcp"
@@ -174,8 +147,7 @@
                     ? 'equipment_information_two_input'
                     : 'equipment_information_two_input1'
                 "
-                @focus="Check('udp')"
-                @blur="Blur('udp')"
+                @keyup="Check('udp')"
                 type="text"
                 id
                 ref="udp"
@@ -194,11 +166,12 @@
             <p class="line40">Save Changes:</p>
             <p class="line40">Get Configure File:</p>
             <p class="line40">Reset:</p>
+            <p class="line40">Refresh:</p>
             <!-- <p class="line40">ISP Mode:</p> -->
           </div>
           <div class="right">
             <p class="line40">
-              <el-button class="btn" type="primary" @click="saveInfo">Save Changes</el-button>
+              <el-button class="btn" type="primary" @click="saveInfo" :disabled="!HaveChange" >Save Changes</el-button>
             </p>
             <p class="line40">
               <el-button class="btn" type="primary" @click="downLoad">Get Configure File</el-button>
@@ -206,6 +179,9 @@
             <p class="line40">
               <el-button class="btn" type="primary" @click="reset">Repower</el-button>
               <el-button class="btn" type="primary" @click="factory">Factory</el-button>
+            </p>
+            <p class="line40">
+              <el-button class="btn" type="primary" @click="Refresh">Refresh</el-button>
             </p>
             <!-- <p class="line40"><el-button class="btn" type="primary">ISP Mode</el-button></p> -->
           </div>
@@ -221,6 +197,23 @@
             <el-table-column property="name" label="Name" width="150"></el-table-column>
             <el-table-column property="value" label="Verioson" width="200"></el-table-column>
           </el-table>
+        </el-dialog>
+        <el-dialog
+          title="Set Static IP Address"
+          :visible.sync="staticip"
+          :append-to-body="true"
+          width="500px"
+          :close-on-click-modal="false"
+        >
+          <el-radio-group v-model="ipaddress">
+            <el-radio :label='"192.168.1.39"'></el-radio>
+            <el-radio :label=oldIpVal0></el-radio>
+          </el-radio-group>
+          <div slot="footer" class="dialog-footer">
+          <el-button @click="SetStaticIP(false)">CANCEL</el-button>
+          <el-button type="primary" @click="SetStaticIP(true)">OK</el-button>
+          </div>
+
         </el-dialog>
       </div>
     </div>
@@ -263,40 +256,123 @@ export default {
       oldNameVal0: "",
       isUpgrade: false,
       ckeckVal: false,
-      uploadedFiles: ""
+      uploadedFiles: "",
+      HaveChange:false,
+      ChangeFlag:0,
+      ipaddress:"192.168.1.39",
+      staticip:false
     };
   },
-  watch: {},
+  watch: {
+    ChangeFlag:function(value)
+    {
+      console.log("The data is "+value)
+      if(value==0)
+      {
+        this.HaveChange=false;
+      }
+      else
+      {
+        this.HaveChange=true;
+      }
+    }
+  },
   computed: {},
   methods: {
-    Check(inp) {
-      switch (inp) {
+    Check(inp) 
+    {
+      switch (inp) 
+      {
         case "name":
-          this.nameCheck = true;
+        {
+          let value=this.$refs.nameInp.value;
+          if(this.oldNameVal0==value)
+          {
+            this.ChangeFlag&=~1;
+          }
+          else
+          {
+            this.ChangeFlag|=1;
+          }
           break;
+        }
         case "ip":
-          this.ipCheck = true;
+        {
+          let value=this.$refs.ipInp.value;
+          if(this.oldIpVal0==value)
+          {
+            this.ChangeFlag&=~2;
+          }
+          else
+          {
+            this.ChangeFlag|=2;
+          }
           break;
+        }
         case "mask":
-          this.maskCheck = true;
+        {
+          let value=this.$refs.subnetMask.value;
+          if(this.oldMaskVal0==value)
+          {
+            this.ChangeFlag&=~4;
+          }
+          else
+          {
+            this.ChangeFlag|=4;
+          }
           break;
+        }
         case "gateway":
-          this.gatewayCheck = true;
+        {
+          let value=this.$refs.gateway.value;
+          if(this.oldGateVal0==value)
+          {
+            this.ChangeFlag&=~8;
+          }
+          else
+          {
+            this.ChangeFlag|=8;
+          }
           break;
+        }
         case "tcp":
-          this.tcpCheck = true;
+        {
+          this.$refs.tcp.value=this.$refs.tcp.value.replace(/\D/g,'');
+          let value=this.$refs.tcp.value;
+          if(this.oldTcpVal0==value)
+          {
+            this.ChangeFlag&=~16;
+          }
+          else
+          {
+            this.ChangeFlag|=16;
+          }
           break;
+        }
         case "udp":
-          this.udpCheck = true;
+        {
+          this.$refs.udp.value=this.$refs.udp.value.replace(/\D/g,'');
+          let value=this.$refs.udp.value;
+          if(this.oldUdpVal0==value)
+          {
+            this.ChangeFlag&=~32;
+          }
+          else
+          {
+            this.ChangeFlag|=32;
+          }
           break;
+        }
         default:
           break;
       }
-      if (window.getDeviceInterval) {
+      if (window.getDeviceInterval) 
+      {
         window.clearInterval(window.getDeviceInterval);
       }
     },
-    Blur(inp) {
+    Blur(inp) 
+    {
       let ipaddr = this.$refs.ipInp.value;
       let nameaddr = this.$refs.nameInp.value;
       let maskaddr = this.$refs.subnetMask.value;
@@ -324,11 +400,13 @@ export default {
       }
     },
     // 选择文件
-    uplaodFile() {
+    uplaodFile() 
+    {
       document.getElementById("file").click();
     },
     // 选择文件点击确认后
-    selectFile(event) {
+    selectFile(event) 
+    {
       this.file = event.target.files[0];
       var filemaxsize = 1024 * 2;
       var size = this.file.size / 1024;
@@ -337,18 +415,8 @@ export default {
       let fileNameExt = this.file.name.substring(0, nameIndex);
       let ext = this.file.name.substr(index + 1);
       let extUpperCase = ext.toUpperCase();
-      // if (size > filemaxsize) {
-      //   this.$alert(
-      //     "The appendix size should not exceed " + filemaxsize / 1024 + "M！",
-      //     "Prompt information",
-      //     {
-      //       confirmButtonText: "OK",
-      //       callback: action => {}
-      //     }
-      //   );
-      //   return false;
-      // }
-      if (size <= 0) {
+      if (size <= 0) 
+      {
         this.$alert("The appendix size can not be 0M！", "Prompt information", {
           confirmButtonText: "OK",
           callback: action => {
@@ -358,7 +426,8 @@ export default {
         });
         return false;
       }
-      if (extUpperCase != "KPTW") {
+      if (extUpperCase != "KPTW") 
+      {
         this.$alert("Upgrade file type error", "Prompt information", {
           confirmButtonText: "OK",
           callback: action => {
@@ -368,7 +437,8 @@ export default {
         });
         return false;
       }
-      if (fileNameExt != "VS-1616DN-EM_VS-3232DN-EM_VS-6464DN-EM") {
+      if (fileNameExt != "VS-1616DN-EM_VS-3232DN-EM_VS-6464DN-EM") 
+      {
         this.$alert("Error in uploaded file", "Prompt information", {
           confirmButtonText: "OK",
           callback: action => {
@@ -403,25 +473,27 @@ export default {
           this.fileGrogress = complete;
         }
       };
-      this.$axios
-        .post("/cgi-bin/upload.cgi", formData, config)
-        .then(function(msg) {
-          if (msg.data.status == "SUCCESS") {
-            that.uploadStatus = "success";
-            that.fileGrogress = 100;
-            that.isUpgrade = true;
-            that.Upgrade();
-            console.log("good for this ");
-          } else {
-            console.log("The value is " + msg.data.status);
-          }
-        })
-        .catch(function(error) {
-          console.log(error);
-        });
+      this.$axios.post("/cgi-bin/upload.cgi", formData, config).then(function(msg) 
+      {
+        if (msg.data.status == "SUCCESS") 
+        {
+          that.uploadStatus = "success";
+          that.fileGrogress = 100;
+          that.isUpgrade = true;
+          that.Upgrade();
+          console.log("good for this ");
+        } 
+        else 
+        {
+          console.log("The value is " + msg.data.status);
+        }
+      }).catch(function(error) {
+        console.log(error);
+      });
     },
     //开始升级
-    Upgrade() {
+    Upgrade() 
+    {
       let that = this;
       let aoData = {
         cmd: "GetUpgradeFileName",
@@ -429,27 +501,30 @@ export default {
           Filename: that.fileName
         }
       };
-      this.$axios
-        .post("/cgi-bin/ligline.cgi", aoData)
-        .then(function(response) {
-          if (response.data.status == "SUCCESS") {
-            let decompressionFileName = response.data.echo.result.Filename;
-            that.realUpgrade(decompressionFileName);
-          } else if (response.data.status == "ERROR") {
-            that.$alert(response.data.error, "Prompt information", {
-              confirmButtonText: "OK",
-              callback: action => {}
-            });
-          }
-        })
-        .catch(function(error) {
+      this.$axios.post("/cgi-bin/ligline.cgi", aoData).then(function(response) 
+      {
+        if (response.data.status == "SUCCESS") 
+        {
+          let decompressionFileName = response.data.echo.result.Filename;
+          that.realUpgrade(decompressionFileName);
+        } 
+        else if (response.data.status == "ERROR") 
+        {
+          that.$alert(response.data.error, "Prompt information", {
+            confirmButtonText: "OK",
+            callback: action => {}
+          });
+        }
+      }).catch(function(error) {
           console.log(error);
         });
     },
-    realUpgrade(fileName) {
+    realUpgrade(fileName) 
+    {
       let that = this;
       that.$store.state.upgradeDeviceLoading = true;
-      window.upgradeSettimeout = setTimeout(function() {
+      window.upgradeSettimeout = setTimeout(function() 
+      {
         window.location.reload();
       }, 100000);
       let aoData = {
@@ -459,216 +534,176 @@ export default {
           oldfile: fileName
         }
       };
-      this.$axios
-        .post("/cgi-bin/ligline.cgi", aoData)
-        .then(function(response) {
-          if (response.data.status == "SUCCESS") {
-          } else if (response.data.status == "ERROR") {
-            that.$alert(response.data.error, "Prompt information", {
+      this.$axios.post("/cgi-bin/ligline.cgi", aoData).then(function(response) 
+      {
+          if (response.data.status == "SUCCESS") 
+          {
+          } 
+          else if (response.data.status == "ERROR") 
+          {
+            that.$alert(response.data.error, "Prompt information", 
+            {
               confirmButtonText: "OK",
-              callback: action => {
+              callback: action => 
+              {
                 that.uploading = false;
                 that.uploadedFiles = ""
               }
             });
           }
-        })
-        .catch(function(error) {
+        }).catch(function(error) {
           console.log(error);
         });
     },
-    clickMe() {
+    /**设置DHCP状态 */
+    clickMe() 
+    {
       let that = this;
       let val = 0;
-      if (that.ckeckVal) {
+      if (that.ckeckVal) 
+      {
         val = 1;
-      } else {
+      } 
+      else 
+      {
         val = 0;
+        that.staticip=true;
       }
-      let aoData = {
+      return false;
+      let aoData = 
+      {
         cmd: "SetDHCPStatus",
-        Data: {
+        Data: 
+        {
           dhcp: val
         }
       };
-      this.$axios
-        .post("/cgi-bin/ligline.cgi", aoData)
-        .then(function(response) {
-          if (response.data.status == "SUCCESS") {
-          } else if (response.data.status == "ERROR") {
-            that.$alert(response.data.error, "Prompt information", {
-              confirmButtonText: "OK",
-              callback: action => {}
-            });
-          }
-        })
-        .catch(function(error) {
+      this.$axios.post("/cgi-bin/ligline.cgi", aoData).then(function(response) 
+      {
+        if (response.data.status == "SUCCESS")
+        {
+        } 
+        else if (response.data.status == "ERROR") 
+        {
+          that.$alert(response.data.error, "Prompt information", 
+          {
+            confirmButtonText: "OK",
+            callback: action => {}
+          });
+        }
+      }).catch(function(error) {
           console.log(error);
         });
     },
-    saveInfo() {
-      let ipaddr = this.$refs.ipInp.value;
+    /**设置修改的参数 */
+    saveInfo() 
+    {
       let nameaddr = this.$refs.nameInp.value;
+      let ipaddr =this.SetIPAddress(this.$refs.ipInp.value) ;
       let maskaddr = this.$refs.subnetMask.value;
-      let gateway = this.$refs.gateway.value;
+      let gateway =this.SetIPAddress(this.$refs.gateway.value) ;
       let tcp = this.$refs.tcp.value;
       let udp = this.$refs.udp.value;
       console.log(ipaddr);
+      this.ipCheck=this.$checkInp.fnValidateIPAddress(ipaddr);
+      this.maskCheck=this.$checkInp.fnValidateMask(maskaddr);
+      this.gatewayCheck=this.$checkInp.fnValidateGateway(gateway);
+      this.tcpCheck=this.$checkInp.fnValidateIcp(tcp);
+      this.udpCheck=this.$checkInp.fnValidateUdp(udp);
+      this.nameCheck=this.$checkInp.fnValidateName(nameaddr)
       if (
-        this.$checkInp.fnValidateIPAddress(ipaddr) == true &&
-        this.$checkInp.fnValidateMask(maskaddr) == true &&
-        this.$checkInp.fnValidateGateway(gateway) == true &&
-        this.$checkInp.fnValidateIcp(tcp) == true &&
-        this.$checkInp.fnValidateUdp(udp) == true &&
-        this.$checkInp.fnValidateName(nameaddr) == true
-      ) {
-        this.$confirm("Are you sure?", "Prompt information", {
-          confirmButtonText: "Ok",
-          cancelButtonText: "Cancel",
-          type: "warning",
-          closeOnClickModal: false
-        })
-          .then(() => {
-            let that = this;
-            let setInfo = {};
-            if (
-              ipaddr != that.oldIpVal0 ||
-              maskaddr != that.oldMaskVal0 ||
-              gateway != that.oldGateVal0
-            ) {
-              setInfo.ip = ipaddr;
-              setInfo.mask = maskaddr;
-              setInfo.gateway = gateway;
-            }
-            if (tcp != that.oldTcpVal0) {
-              setInfo.tcp = Number(tcp);
-            }
-            if (udp != that.oldUdpVal0) 
-            {
-              setInfo.udp = Number(udp);
-            }
-            if (
-              Object.keys(setInfo).length == 0 &&
-              nameaddr == that.oldNameVal0
-            ) {
-              that.$alert(
-                "Please save after modifying the parameters",
-                "Prompt information",
-                {
-                  confirmButtonText: "OK",
-                  callback: action => {}
-                }
-              );
-              return false;
-            }
-            if (nameaddr != that.oldNameVal0) {
-              let aoData = {
-                cmd: "SetDeviceName",
-                Data: {
-                  Name: nameaddr
-                }
-              };
-              this.$axios
-                .post("/cgi-bin/ligline.cgi", aoData)
-                .then(function(response) {
-                  if (response.data.status == "SUCCESS") {
-                  } else if (response.data.status == "ERROR") {
-                    that.$alert(response.data.error, "Prompt information", {
-                      confirmButtonText: "OK",
-                      callback: action => {}
-                    });
-                  }
-                })
-                .catch(function(error) {
-                  console.log(error);
-                });
-            }
-            if (
-              ipaddr != that.oldIpVal0 ||
-              maskaddr != that.oldMaskVal0 ||
-              gateway != that.oldGateVal0
-            ) {
-              window.setTimeoutSetIp = setTimeout(function() {
-                that.$alert("Save success", "Prompt information", {
-                  confirmButtonText: "OK",
-                  callback: action => {
-                    let aNum = ipaddr.split(".");
-                    let num = "";
-                    num += parseInt(aNum[0]) + ".";
-                    num += parseInt(aNum[1]) + ".";
-                    num += parseInt(aNum[2]) + ".";
-                    num += parseInt(aNum[3]);
-                    window.location.href = "http://" + num;
-                  }
-                });
-              }, 1500);
-            }
-
-            if (
-              Object.keys(setInfo).length == 0 &&
-              nameaddr != that.oldNameVal0
-            ) {
-              return false;
-            }
+        this.ipCheck &&
+        this.maskCheck&&
+        this.gatewayCheck&&
+        this.tcpCheck&&
+        this.udpCheck&&
+        this.nameCheck
+      ) 
+      {
+          let that = this;
+          let setInfo = {};
+          if(that.ChangeFlag&0xE)
+          {
+            setInfo.ip = ipaddr;
+            setInfo.mask = maskaddr;
+            setInfo.gateway = gateway;
+          }
+          if(that.ChangeFlag&16)
+          {
+            setInfo.tcp = Number(tcp);
+          }
+          if(that.ChangeFlag&32)
+          {
+            setInfo.udp = Number(udp);
+          }
+          if(that.ChangeFlag&1)
+          {
             let aoData = {
-              cmd: "SetNetwork",
-              Data: setInfo
+              cmd: "SetDeviceName",
+              Data: {
+                Name: nameaddr
+              }
             };
-            this.$axios
-              .post("/cgi-bin/ligline.cgi", aoData)
-              .then(function(response) {
+            this.$axios.post("/cgi-bin/ligline.cgi", aoData).then(function(response) 
+              {
                 if (response.data.status == "SUCCESS") 
                 {
                 } 
                 else if (response.data.status == "ERROR") 
                 {
-                  if (window.setTimeoutSetIp) 
-                  {
-                    window.clearTimeout(window.setTimeoutSetIp);
-                  }
                   that.$alert(response.data.error, "Prompt information", {
-                    confirmButtonText: "OK",
-                    callback: action => {}
-                  });
+                  confirmButtonText: "OK",
+                  callback: action => {}
+                    });
                 }
-              })
-              .catch(function(error) {
+              }).catch(function(error) 
+              {
+                  console.log(error);
+              });
+          }
+          if(that.ChangeFlag^1)
+          {
+            let aoData = {
+              cmd: "SetNetwork",
+              Data: setInfo
+            };
+            this.$axios.post("/cgi-bin/ligline.cgi", aoData).then(function(response) 
+            {
+              if (response.data.status == "SUCCESS") 
+              {
+              } 
+              else if (response.data.status == "ERROR") 
+              {
+                
+              }
+            }).catch(function(error) 
+              {
                 console.log(error);
               });
-          })
-          .catch(() => {
-            let sendata = {
-              resetSure: "取消保存信息"
-            };
-
-            console.log(sendata);
-          });
-      } else {
-        this.$alert("Parameter is incorrect!", "Prompt information", {
-          confirmButtonText: "OK",
-          callback: action => {}
-        });
-      }
-      if (this.$checkInp.fnValidateIPAddress(ipaddr) == false) {
-        this.ipCheck = false;
-      }
-      if (this.$checkInp.fnValidateMask(maskaddr) == false) {
-        this.maskCheck = false;
-      }
-      if (this.$checkInp.fnValidateGateway(gateway) == false) {
-        this.gatewayCheck = false;
-      }
-      if (this.$checkInp.fnValidateIcp(tcp) == false) {
-        this.tcpCheck = false;
-      }
-      if (this.$checkInp.fnValidateUdp(udp) == false) {
-        this.udpCheck = false;
-      }
-      if (this.$checkInp.fnValidateName(nameaddr) == false) {
-        this.nameCheck = false;
-      }
+            if((that.ChangeFlag&2)==2)
+            {
+              console.log("chanage ip "+ipaddr);
+              window.location.href = "http://" +ipaddr;
+            }
+            else
+            {
+              console.log("Have nochangfe")
+            }
+          }
+        }
     },
-    downLoad() {
+    SetIPAddress(value)
+    {
+      let data=value.split(".");
+      let val=new Array();
+      for(let i=0;i<data.length;i++)
+      {
+        val[i]=parseInt(data[i])
+      }
+      return val.join(".")
+    },
+    downLoad() 
+    {
       var ip_addr = document.location.hostname;
       let link = document.createElement("a");
       link.style.display = "none";
@@ -677,7 +712,8 @@ export default {
       document.body.appendChild(link);
       link.click();
     },
-    reset() {
+    reset() 
+    {
       this.$confirm(
         "RESET Device to repower ? <br/>Press OK to confirm",
         "Prompt information",
@@ -688,40 +724,44 @@ export default {
           closeOnClickModal: false,
           dangerouslyUseHTMLString: true
         }
-      )
-        .then(() => {
+      ).then(() => {
           let that = this;
           let ip_addr = document.location.hostname;
-          let aoData = {
+          let aoData = 
+          {
             cmd: "SetDeviceReset"
           };
-          this.$axios
-            .post("/cgi-bin/ligline.cgi", aoData)
-            .then(function(response) {
-              if (response.data.status == "SUCCESS") {
-                that.$store.state.resetLoading = true;
-                window.mysettimeout = setTimeout(function() {
-                  window.location.href = "http://" + ip_addr;
+          this.$axios.post("/cgi-bin/ligline.cgi", aoData).then(function(response) 
+          {
+            if (response.data.status == "SUCCESS") 
+            {
+              that.$store.state.resetLoading = true;
+              window.mysettimeout = setTimeout(function() 
+              {
+                window.location.href = "http://" + ip_addr;
                 }, 80000);
-              } else if (response.data.status == "ERROR") {
-                that.$alert(response.data.error, "Prompt information", {
+              } 
+              else if (response.data.status == "ERROR") 
+              {
+                that.$alert(response.data.error, "Prompt information", 
+                {
                   confirmButtonText: "OK",
                   callback: action => {}
                 });
               }
-            })
-            .catch(function(error) {
+            }).catch(function(error) 
+            {
               console.log(error);
             });
-        })
-        .catch(() => {
+        }).catch(() => {
           let sendata = {
             resetSure: "取消重置信息"
           };
           console.log(sendata);
         });
     },
-    factory() {
+    factory() 
+    {
       this.$confirm(
         "RESET Device to factory default ? <br/>Press OK to confirm",
         "Prompt information",
@@ -732,87 +772,88 @@ export default {
           closeOnClickModal: false,
           dangerouslyUseHTMLString: true
         }
-      )
-        .then(() => {
+      ).then(() => {
           let that = this;
           let aoData = {
             cmd: "SetDeviceFactory"
           };
-          this.$axios
-            .post("/cgi-bin/ligline.cgi", aoData)
-            .then(function(response) {
-              if (response.data.status == "SUCCESS") {
-                that.$store.state.resetLoading = true;
-                window.mysettimeout = setTimeout(function() {
+          this.$axios.post("/cgi-bin/ligline.cgi", aoData).then(function(response) 
+          {
+            if (response.data.status == "SUCCESS") 
+            {
+              that.$store.state.resetLoading = true;
+              window.mysettimeout = setTimeout(function() 
+              {
                   window.location.href = "http://192.168.1.39";
-                }, 80000);
-              } else if (response.data.status == "ERROR") {
-                that.$alert(response.data.error, "Prompt information", {
-                  confirmButtonText: "OK",
-                  callback: action => {}
-                });
-              }
-            })
-            .catch(function(error) {
+              }, 80000);
+            } 
+            else if (response.data.status == "ERROR") 
+            {
+              that.$alert(response.data.error, "Prompt information", 
+              {
+                confirmButtonText: "OK",
+                callback: action => {}
+              });
+            }
+          }).catch(function(error) {
               console.log(error);
             });
-        })
-        .catch(() => {
+        }).catch(() => {
           let sendata = {
             resetSure: "取消重置信息"
           };
           console.log(sendata);
         });
     },
-    getDeviceInfo() {
+    Refresh()
+    {
+      this.ChangeFlag=0;
+      this.getDeviceInfo();
+    },
+    /**获取设备信息 */
+    getDeviceInfo() 
+    {
       let that = this;
-      this.$axios
-        .get("/configuration.json")
-        .then(response => {
+      this.$axios.get("/configuration.json").then(response => {
           that.model = response.data.data.matrix.model;
           that.sn = that.$store.state.sn;
           that.firmwareVersion = that.$store.state.version;
-          if (response.data.data.communication.Ethernet[0].dhcp == 0) {
+          if (response.data.data.communication.Ethernet[0].dhcp == 0) 
+          {
             that.ckeckVal = false;
-          } else {
+          } 
+          else 
+          {
             that.ckeckVal = true;
           }
-          // that.Moreinfo =
-          //   response.data.information.echo.result.DeviceInfo.BaseInfo.Moreinfo;
           that.mac0 = response.data.data.communication.Ethernet[0].mac;
-          that.$refs.ipInp.value =
-            response.data.data.communication.Ethernet[0].ip;
-          that.$refs.subnetMask.value =
-            response.data.data.communication.Ethernet[0].mask;
-          that.$refs.gateway.value =
-            response.data.data.communication.Ethernet[0].gate;
-          that.$refs.tcp.value =
-            response.data.data.communication.Ethernet[0].tcp;
-          that.$refs.udp.value =
-            response.data.data.communication.Ethernet[0].udp;
+          that.$refs.ipInp.value =response.data.data.communication.Ethernet[0].ip;
+          that.$refs.subnetMask.value =response.data.data.communication.Ethernet[0].mask;
+          that.$refs.gateway.value =response.data.data.communication.Ethernet[0].gate;
+          that.$refs.tcp.value =response.data.data.communication.Ethernet[0].tcp;
+          that.$refs.udp.value =response.data.data.communication.Ethernet[0].udp;
           that.$refs.nameInp.value = response.data.data.matrix.name;
-          that.oldNameVal0 = JSON.parse(
-            JSON.stringify(response.data.data.matrix.name)
-          );
-          that.oldIpVal0 = JSON.parse(
-            JSON.stringify(response.data.data.communication.Ethernet[0].ip)
-          );
-          that.oldMaskVal0 = JSON.parse(
-            JSON.stringify(response.data.data.communication.Ethernet[0].mask)
-          );
-          that.oldGateVal0 = JSON.parse(
-            JSON.stringify(response.data.data.communication.Ethernet[0].gate)
-          );
-          that.oldTcpVal0 = JSON.parse(
-            JSON.stringify(response.data.data.communication.Ethernet[0].tcp)
-          );
-          that.oldUdpVal0 = JSON.parse(
-            JSON.stringify(response.data.data.communication.Ethernet[0].udp)
-          );
-        })
-        .catch(function(error) {
+          that.oldNameVal0 = JSON.parse(JSON.stringify(response.data.data.matrix.name));
+          that.oldIpVal0 =that.SetIPAddress(JSON.parse(JSON.stringify(response.data.data.communication.Ethernet[0].ip))) ;
+          that.oldMaskVal0 = JSON.parse(JSON.stringify(response.data.data.communication.Ethernet[0].mask));
+          that.oldGateVal0 = that.SetIPAddress(JSON.parse(JSON.stringify(response.data.data.communication.Ethernet[0].gate)));
+          that.oldTcpVal0 = JSON.parse(JSON.stringify(response.data.data.communication.Ethernet[0].tcp));
+          that.oldUdpVal0 = JSON.parse(JSON.stringify(response.data.data.communication.Ethernet[0].udp));
+          }).catch(function(error) {
           console.log(error);
         });
+    },
+    SetStaticIP(value)
+    {
+      this.staticip=false;
+      if(value)
+      {
+        console.log("设置静态IP "+this.ipaddress);
+      }
+      else
+      {
+        console.log("取消设置静态IP ");
+      }
     },
     ChooseFile() {}
   },
@@ -820,9 +861,7 @@ export default {
   mounted() {
     let that = this;
     that.getDeviceInfo();
-    window.getDeviceInterval = setInterval(function() {
-      that.getDeviceInfo();
-    }, 3000);
+    that.$store.state.Settingsname='first';
   }
 };
 </script>

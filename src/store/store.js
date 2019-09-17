@@ -20,7 +20,10 @@ const state = {
   g: 0,
   h: 17,
   VideoSelectAll:false,
-  VideoALLChecked:[]
+  VideoALLChecked:[],
+  Settingsname:"first",
+  JiFileSize:0,
+  PageLoading:false
 }
 
 

@@ -185,12 +185,16 @@ export default {
     };
   },
   watch: {
-    selectMsg(val, oldval) {
+    selectMsg(val, oldval) 
+    {
       // console.log(val, oldval);
-      if (oldval.length == 0) {
+      if (oldval.length == 0) 
+      {
         this.selectInput = false;
         this.showCopy = false;
-      } else {
+      } 
+      else 
+      {
         this.selectInput = true;
         this.showCopy = true;
       }
@@ -206,114 +210,141 @@ export default {
   },
   computed: {},
   methods: {
-    /*
-			--- 左侧 --- 
-		*/
-    // OUT选择按钮
-    outClcick(output, classIndex) {
+    /**点击源输出端口 */
+    outClcick(output, classIndex) 
+    {
       this.output = output;
       this.isActive = classIndex;
       this.edidFile = false;
       this.Uploading = "";
-      if (this.style_bg == false) {
+      if (this.style_bg == false) 
+      {
         this.type = 2;
         this.getEdidInfo(this.type, classIndex);
-      } else {
+      } 
+      else 
+      {
         this.type = 1;
         let that = this;
-        this.$axios
-          .get("/configuration.json")
-          .then(response => {
+        this.$axios.get("/configuration.json").then(response => {
             let proVInfo = response.data.data.port;
-            for (let j = 0; j < proVInfo.out.length; j++) {
-              if (proVInfo.out[j].index == classIndex) {
-                if (proVInfo.out[j].EDID) {
+            for (let j = 0; j < proVInfo.out.length; j++) 
+            {
+              if (proVInfo.out[j].index == classIndex) 
+              {
+                if (proVInfo.out[j].EDID) 
+                {
                   that.EDIDHandle(proVInfo.out[j].EDID.value);
-                } else {
+                } 
+                else 
+                {
                   that.trueEdid = false;
                 }
               }
             }
-          })
-          .catch(function(error) {
+          }).catch(function(error) 
+          {
             console.log(error);
           });
       }
     },
-    // IN选择按钮
-    inClcick(output, classIndex) {
+    /**点击源的输入端口 */
+    inClcick(output, classIndex) 
+    {
       this.output = output;
       this.isActive = classIndex;
       this.edidFile = false;
       this.Uploading = "";
-      if (this.style_bg == false) {
+      if (this.style_bg == false) 
+      {
         this.type = 2;
         this.getEdidInfo(this.type, classIndex);
-      } else {
+      } 
+      else 
+      {
         this.type = 0;
         let that = this;
-        this.$axios
-          .get("/configuration.json")
-          .then(response => {
+        this.$axios.get("/configuration.json").then(response => {
             let proVInfo = response.data.data.port;
-            for (let j = 0; j < proVInfo.in.length; j++) {
-              if (proVInfo.in[j].index == classIndex) {
-                if (proVInfo.in[j].EDID) {
+            for (let j = 0; j < proVInfo.in.length; j++) 
+            {
+              if (proVInfo.in[j].index == classIndex) 
+              {
+                if (proVInfo.in[j].EDID) 
+                {
                   that.EDIDHandle(proVInfo.in[j].EDID.value);
-                } else {
+                } 
+                else 
+                {
                   that.trueEdid = false;
                 }
               }
             }
-          })
-          .catch(function(error) {
+          }).catch(function(error) {
             console.log(error);
           });
       }
     },
-    // DEFAULT默认按钮
-    defaultClick() {
-      if (this.isActive != -1) {
+    //点击默认按钮
+    defaultClick() 
+    {
+      if (this.isActive != -1) 
+      {
         let type = 0;
-        if (this.style_bg == true) {
+        if (this.style_bg == true) 
+        {
           type = 2;
           this.getEdidInfo(type, this.isActive);
           this.DefaultTxt = "Default";
           this.style_bg = false;
-        } else {
-          for (let i = 0; i < this.outputdata.length; i++) {
-            if (this.isActive == this.outputdata[i].classIndex) {
+        } 
+        else 
+        {
+          for (let i = 0; i < this.outputdata.length; i++) 
+          {
+            if (this.isActive == this.outputdata[i].classIndex) 
+            {
               type = 1;
             }
           }
           let that = this;
-          this.$axios
-            .get("/configuration.json")
-            .then(response => {
+          this.$axios.get("/configuration.json").then(response => {
               let proVInfo = response.data.data.port;
-              if (type == 1) {
-                for (let j = 0; j < proVInfo.out.length; j++) {
-                  if (proVInfo.out[j].index == this.isActive) {
-                    if (proVInfo.out[j].EDID) {
+              if (type == 1) 
+              {
+                for (let j = 0; j < proVInfo.out.length; j++) 
+                {
+                  if (proVInfo.out[j].index == this.isActive) 
+                  {
+                    if (proVInfo.out[j].EDID) 
+                    {
                       that.EDIDHandle(proVInfo.out[j].EDID.value);
-                    } else {
+                    } 
+                    else 
+                    {
                       that.trueEdid = false;
                     }
                   }
                 }
-              } else {
-                for (let j = 0; j < proVInfo.in.length; j++) {
-                  if (proVInfo.in[j].index == this.isActive) {
-                    if (proVInfo.in[j].EDID) {
+              } 
+              else 
+              {
+                for (let j = 0; j < proVInfo.in.length; j++) 
+                {
+                  if (proVInfo.in[j].index == this.isActive) 
+                  {
+                    if (proVInfo.in[j].EDID) 
+                    {
                       that.EDIDHandle(proVInfo.in[j].EDID.value);
-                    } else {
+                    } 
+                    else 
+                    {
                       that.trueEdid = false;
                     }
                   }
                 }
               }
-            })
-            .catch(function(error) {
+            }).catch(function(error) {
               console.log(error);
             });
           this.DefaultTxt = "";
@@ -322,34 +353,37 @@ export default {
         this.edidFile = false;
         this.Uploading = "";
         this.type = type;
-        // this.isActive = -1;
-        // this.style_bg = false;
-        // this.$refs.clearUploads.clearFiles();
       }
     },
     // 上传文件
     GetEDID() {
       document.getElementById("EDIDFile").click();
     },
-    // 上传文件点击确认后
-    ReadEDIDFile() {
+    // 
+    ReadEDIDFile() 
+    {
       let that = this;
       let file = document.getElementById("EDIDFile").files[0];
       let re = /.bin$/i;
       let SafariFlag = navigator.userAgent.search("Safari");
-      if (typeof FileReader == "undefined") {
+      if (typeof FileReader == "undefined") 
+      {
         SafariFlag = true;
-      } else {
+      } 
+      else 
+      {
         SafariFlag = false;
       }
-      if (parseInt(file.size) % 128 != 0) {
+      if (parseInt(file.size) % 128 != 0) 
+      {
         that.$alert("ERROR File Type Error", "Prompt information", {
           confirmButtonText: "OK",
           callback: action => {}
         });
         return false;
       }
-      if (re.test(file.name)) {
+      if (re.test(file.name)) 
+      {
         var reader;
         reader = new FileReader();
         that.Uploading = file.name;
@@ -362,10 +396,12 @@ export default {
             console.log(result);
             var edidText = "";
             let n;
-            for (n = 0; n < result.length; ++n) {
+            for (n = 0; n < result.length; ++n) 
+            {
               aByte = result[n];
               byteStr = aByte.toString(16);
-              if (byteStr.length < 2) {
+              if (byteStr.length < 2) 
+              {
                 byteStr = "0" + byteStr;
               }
               edidText += byteStr;
@@ -373,25 +409,20 @@ export default {
             that.EDIDinfo = edidText;
             that.EDIDHandle(edidText);
           };
-          reader.onerror = function() {
-            if (evt.target.error.name == "NotReadableError") {
+          reader.onerror = function() 
+          {
+            if (evt.target.error.name == "NotReadableError")
+            {
             }
           };
         };
-      } else {
+      } 
+      else 
+      {
         that.$alert("File type error", "Prompt information", {
           confirmButtonText: "OK",
           callback: action => {}
         });
-        // if (failfiel) {
-        //     if (firstflag) {
-        //         that.$alert("File type error", "Prompt information", {
-        //             confirmButtonText: "OK",
-        //             callback: action => {}
-        //         });
-        //     } else {
-        //     }
-        // }
       }
       this.output = "";
       this.DefaultTxt = "";
@@ -400,14 +431,14 @@ export default {
       this.isActive = -1;
       this.$refs.uploadExcelId.value = null;
     },
-    /*
-			--- 中部 --- 
-		*/
-    // Copy按鈕
-    edidCopyClick() {
+    /**点击复制按钮 */
+    edidCopyClick() 
+    {
       let that = this;
-      if (that.trueEdid == false) {
-        that.$alert("Error EDID,cannot copy", "Prompt information", {
+      if (that.trueEdid == false) 
+      {
+        that.$alert("Error EDID,cannot copy", "Prompt information", 
+        {
           confirmButtonText: "OK",
           callback: action => {}
         });
@@ -415,34 +446,47 @@ export default {
       }
       that.copyBtn = "COPYING";
       that.selecting = true;
-      if (this.edidFile == false) {
+      if (this.edidFile == false) 
+      {
         let copyIndexLength = that.copyIndex.length;
-        if (that.indexNumber < copyIndexLength) {
-          setTimeout(function() {
+        if (that.indexNumber < copyIndexLength) 
+        {
+          setTimeout(function() 
+          {
             that.edidCopy(that.copyIndex[that.indexNumber]);
           }, 2000);
-        } else {
+        } 
+        else 
+        {
           that.indexNumber = 0;
           setTimeout(function() {
             that.selecting = false;
             that.copyBtn = "COPY";
           }, 2000);
         }
-      } else {
+      } 
+      else 
+      {
         let copyIndexLength = that.copyIndex.length;
-        if (that.indexNumber < copyIndexLength) {
-          setTimeout(function() {
+        if (that.indexNumber < copyIndexLength) 
+        {
+          setTimeout(function() 
+          {
             that.loadCopy(that.copyIndex[that.indexNumber]);
           }, 2000);
-        } else {
+        } 
+        else 
+        {
           that.indexNumber = 0;
-          setTimeout(function() {
+          setTimeout(function() 
+          {
             that.selecting = false;
             that.copyBtn = "COPY";
           }, 2000);
         }
       }
     },
+    /**真正的拷贝EDID过程 */
     edidCopy(items) {
       let copyIn = [items.classIndex];
       let aoData = {
@@ -455,37 +499,36 @@ export default {
       };
       console.log(aoData);
       let that = this;
-      this.$axios
-        .post("/cgi-bin/ligline.cgi", aoData)
-        .then(function(response) {
-          if (response.data.status == "SUCCESS") {
+      this.$axios.post("/cgi-bin/ligline.cgi", aoData).then(function(response) 
+      {
+          if (response.data.status == "SUCCESS") 
+          {
             that.$message({
               message: items.title + " copy success",
               type: "success"
             });
             that.indexNumber++;
             that.edidCopyClick();
-          } else if (response.data.status == "ERROR") {
-            that
-              .$confirm(items.title + " copy error", "Prompt information", {
+          } 
+          else if (response.data.status == "ERROR") 
+          {
+            that.$confirm(items.title + " copy error", "Prompt information", {
                 confirmButtonText: "Next",
                 cancelButtonText: "Again",
                 type: "warning",
                 closeOnClickModal: false
-              })
-              .then(() => {
+              }).then(() => {
                 that.indexNumber++;
                 that.edidCopyClick();
-              })
-              .catch(() => {
+              }).catch(() => {
                 that.edidCopyClick();
               });
           }
-        })
-        .catch(function(error) {
+        }).catch(function(error) {
           console.log(error);
         });
     },
+    /**拷贝上传的EDID */
     loadCopy(items) {
       let copyIn = [items.classIndex];
       let aoData = {
@@ -497,49 +540,46 @@ export default {
       };
       console.log(aoData);
       let that = this;
-      this.$axios
-        .post("/cgi-bin/ligline.cgi", aoData)
-        .then(function(response) {
-          if (response.data.status == "SUCCESS") {
+      this.$axios.post("/cgi-bin/ligline.cgi", aoData).then(function(response)
+      {
+        if (response.data.status == "SUCCESS") 
+        {
             that.$message({
               message: items.title + " copy success",
               type: "success"
             });
             that.indexNumber++;
             that.edidCopyClick();
-          } else if (response.data.status == "ERROR") {
-            that
-              .$confirm(items.title + " copy error", "Prompt information", {
-                confirmButtonText: "Next",
-                cancelButtonText: "Again",
-                type: "warning",
-                closeOnClickModal: false
-              })
-              .then(() => {
+        } 
+        else if (response.data.status == "ERROR") 
+        {
+          that.$confirm(items.title + " copy error", "Prompt information", {
+            confirmButtonText: "Next",
+            cancelButtonText: "Again",
+            type: "warning",
+            closeOnClickModal: false
+            }).then(() => {
                 that.indexNumber++;
                 that.edidCopyClick();
-              })
-              .catch(() => {
+              }).catch(() => {
                 that.edidCopyClick();
               });
           }
-        })
-        .catch(function(error) {
+        }).catch(function(error) {
           console.log(error);
         });
     },
-    /*
-			--- 右侧 --- 
-		*/
-    //
-    // 全选按钮
-    allSelect(e) {
+    /** */
+    allSelect(e) 
+    {
       let that = this;
-      if (e.target.checked) {
+      if (e.target.checked) 
+      {
         that.ischecked = true;
         that.selectMsg.length = 0;
         that.copyIndex.length = 0;
-        for (var i = 0; i < that.copyInput.length; i++) {
+        for (var i = 0; i < that.copyInput.length; i++) 
+        {
           that.$set(that.copyInput[i], "checked", true);
           let ht = {
             title: that.copyInput[i].title,
@@ -549,51 +589,68 @@ export default {
           that.selectMsg.push(ht);
           that.copyIndex.push(ht);
         }
-      } else {
+      } 
+      else 
+      {
         that.ischecked = false;
         that.selectInput = false;
         that.showCopy = false;
-        for (var i = 0; i < that.copyInput.length; i++) {
+        for (var i = 0; i < that.copyInput.length; i++) 
+        {
           that.$delete(that.copyInput[i], "checked");
         }
         that.selectMsg.length = 0;
         that.copyIndex.length = 0;
       }
     },
-    compare(property) {
-      return function(a, b) {
+    compare(property) 
+    {
+      return function(a, b) 
+      {
         var value1 = a[property];
         var value2 = b[property];
         return value1 - value2;
       };
     },
     // Out多选按钮
-    copyInputClick(item) {
+    copyInputClick(item) 
+    {
       let ht = {
         title: item.title,
         index: item.index,
         classIndex: item.classIndex
       };
-      if (typeof item.checked == "undefined") {
+      if (typeof item.checked == "undefined") 
+      {
         this.$set(item, "checked", true);
         this.selectMsg.push(ht);
         this.copyIndex.push(ht);
         this.selectMsg.sort(this.compare("index"));
-      } else {
+      } 
+      else 
+      {
         this.$delete(item, "checked");
         this.ischecked = false;
-        for (var i = 0; i < this.selectMsg.length; i++) {
-          if (this.selectMsg[i].index == item.index) {
+        for (var i = 0; i < this.selectMsg.length; i++) 
+        {
+          if (this.selectMsg[i].index == item.index) 
+          {
             this.selectMsg.splice(i, 1);
             break;
-          } else {
+          } 
+          else 
+          {
           }
         }
-        for (var i = 0; i < this.copyIndex.length; i++) {
-          if (this.copyIndex[i].classIndex == item.classIndex) {
+        for (var i = 0; i < this.copyIndex.length; i++) 
+        {
+          if (this.copyIndex[i].classIndex == item.classIndex) 
+          {
             this.copyIndex.splice(i, 1);
             break;
-          } else {
+          } 
+          else 
+          {
           }
         }
       }
@@ -601,38 +658,47 @@ export default {
     // 插件调用的函数
     edidClear() {},
     ischecked() {},
-    handleSuccess(response, file, fileList) {
+    handleSuccess(response, file, fileList) 
+    {
       this.uploadsuccess = true;
       console.log(response, file, fileList);
     },
-    handleRemove(file, fileList) {
+    handleRemove(file, fileList) 
+    {
       // console.log(file, fileList);
-      if (fileList.length == 0) {
+      if (fileList.length == 0) 
+      {
         this.uploadsuccess = false;
       }
     },
-    handlePreview(file) {
+    handlePreview(file) 
+    {
       console.log(file);
     },
-    EDIDHandle(data) {
+    EDIDHandle(data) 
+    {
       let that = this;
       that.trueEdid = true;
       //that.$EDID.setEdidData(data);
-      if (that.$EDID.setEdidData(data) == "errorEDID") {
+      if (that.$EDID.setEdidData(data) == "errorEDID") 
+      {
         that.$alert("ERROR EDID", "Prompt information", {
           confirmButtonText: "OK",
           callback: action => {}
         });
         that.trueEdid = false;
         return false;
-      } else {
+      } 
+      else 
+      {
         that.ModuleName = that.$EDID.getName();
         that.size = that.$EDID.getNativeResolution();
         that.audio = that.$EDID.getAudioChannels();
         that.Model = that.$EDID.getLength();
       }
     },
-    getProInfo() {
+    getProInfo() 
+    {
       let that = this;
       this.$axios
         .get("/configuration.json")
@@ -641,9 +707,11 @@ export default {
           that.outputdata = [];
           that.inputdata = [];
           that.copyInput = [];
-          for (let j = 0; j < proVInfo.in.length; j++) {
+          for (let j = 0; j < proVInfo.in.length; j++) 
+          {
             let i = j + 1;
-            if (j < proVInfo.in.length - 1) {
+            if (j < proVInfo.in.length - 1) 
+            {
               that.inputdata.push({
                 classIndex: proVInfo.in[j].index,
                 index: i,
@@ -656,7 +724,8 @@ export default {
               });
             }
           }
-          for (let j = 0; j < proVInfo.out.length; j++) {
+          for (let j = 0; j < proVInfo.out.length; j++) 
+          {
             let i = j + 1;
             that.outputdata.push({
               classIndex: proVInfo.out[j].index,
@@ -668,12 +737,12 @@ export default {
             that.outputdata[0].output,
             that.outputdata[0].classIndex
           );
-        })
-        .catch(function(error) {
+        }).catch(function(error) {
           console.log(error);
         });
     },
-    getEdidInfo(type, index) {
+    getEdidInfo(type, index) 
+    {
       let aoData = {
         cmd: "GetPortEDID",
         Data: {
@@ -683,30 +752,28 @@ export default {
       };
       console.log(aoData);
       let that = this;
-      this.$axios
-        .post("/cgi-bin/ligline.cgi", aoData)
-        .then(function(response) {
-          if (response.data.status == "SUCCESS") {
+      this.$axios.post("/cgi-bin/ligline.cgi", aoData).then(function(response) 
+      {
+          if (response.data.status == "SUCCESS") 
+          {
             that.selecting = false;
             that.trueEdid = true;
             that.EDIDinfo = response.data.echo.result.EDID;
             that.EDIDHandle(that.EDIDinfo);
-          } else if (response.data.status == "ERROR") {
+          } 
+          else if (response.data.status == "ERROR") 
+          {
             that.EDIDinfo = "";
             that.selecting = false;
             that.trueEdid = false;
-            // that.$alert(response.data.error, "Prompt information", {
-            //     confirmButtonText: "OK",
-            //     callback: action => {}
-            // });
           }
-        })
-        .catch(function(error) {
+        }).catch(function(error) {
           that.selecting = false;
           console.log(error);
         });
     },
-    truncate(arr) {
+    truncate(arr) 
+    {
       let m = arr.slice(0);
       m.splice(m.length - 1, 1);
       return m;
