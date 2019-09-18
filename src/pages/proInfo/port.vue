@@ -133,6 +133,17 @@
                 </el-button>
               </td>
             </tr>
+            <tr>
+              <td width="35%" style="font-size:14px;">Refresh:</td>
+              <td width="65%">
+                <el-button
+                  class="btn"
+                  type="primary"
+                  @click="refresh()"
+                  Refresh
+                </el-button>
+              </td>
+            </tr>
           </table>
         </div>
         <div class="information" v-show="!isPort">
@@ -245,13 +256,19 @@ export default {
     clickBtn(index, info, dir) 
     {
       let confirmValue = "";
+      let successstr="";
+      let errorstr="";
       if (info == 1) 
       {
         confirmValue = "RESET port to repower ? <br/>Press OK to confirm";
+        successstr="Device setup has been successfully finished";
+        errorstr="Device setup failed";
       } 
       else if (info == 2) 
       {
         confirmValue ="RESET port to factory default ? <br/>Press OK to confirm";
+        successstr="Device factory reset has been successfully finished";
+        errorstr="Device factory reset failed";
       }
       let that = this;
       let savedir = "";
@@ -286,21 +303,22 @@ export default {
           {
             if (response.data.status == "SUCCESS") 
             {
-              that.$alert("Save success", "Prompt information", {
-                confirmButtonText: "OK",
-                callback: action => {
-                  that.selectPortInfo(that.isActive);
-                }
-              });
+              that.$alert(successstr, "Prompt information", {
+                  confirmButtonText: "OK",
+                  callback: action => {
+                    setTimeout(() => {
+                      that.PortRefresh();
+                      that.$store.state.PageLoading=false;
+                    }, 3000);
+                  }
+                });
             } 
             else if (response.data.status == "ERROR") 
             {
-              that.$alert(response.data.error, "Prompt information", {
-                confirmButtonText: "OK",
-                callback: action => {
-                  that.selectPortInfo(that.isActive);
-                }
-              });
+              that.$alert(errorstr, "Prompt information", {
+                  confirmButtonText: "OK",
+                  callback: action => {}
+                });
             }
           }).catch(function(error) {
               console.log(error);
@@ -315,6 +333,7 @@ export default {
     selectPortInfo(index) 
     {
       console.log("The index is "+index);
+      this.ChangeFlag=new Array();
       let that = this;
       that.loading = true;
       let portList = [];
@@ -505,7 +524,6 @@ export default {
     saveBtn(index, dir) 
     {
       console.log(this.$conf.PortInfoAv.info);
-      this.ChangeFlag=new Array();
       var data = {};
       let that = this;
       let savedir = "";
@@ -557,21 +575,48 @@ export default {
         that.setData=that.$conf.PortInfoAv.info;
         if (response.data.status == "SUCCESS") 
         {
-          that.$alert("Save success", "Prompt information", {
-            confirmButtonText: "OK",
-            callback: action => {
-              that.selectPortInfo(that.isActive);
+          if(response.data.error)
+            {
+              let i=0,n=0;
+              let errortitle=[];
+              let errorstr="";
+              let errorvalue=response.data.error.split(",");
+              for(i=0;i<errorvalue.length;i++)
+              {
+                for(n=0;n<that.$conf.PortInfoAv.info.length;n++)
+                {
+                  if(that.$conf.PortInfoAv.info[n].sid==errorvalue[i])
+                  {
+                    errortitle.push(that.$conf.PortInfoAv.info[n].id);
+                  }
+                }
+              }
+              errorstr=errortitle.join(",");
+              errorstr+=" Setting Failed";
+              that.$message({
+                message: errorstr,
+                type: "warning"
+              });
+              setTimeout(() => {
+                that.selectPortInfo(that.isActive);
+              }, 1000);
             }
-          });
+            else
+            {
+                that.$message({
+                message: "Save success",
+                type: "success"
+              });
+            }  
         } 
         else if (response.data.status == "ERROR") 
         {
-          that.$alert(response.data.error, "Prompt information", {
-            confirmButtonText: "OK",
-            callback: action => {
-              that.selectPortInfo(that.isActive);
-            }
-          });
+          that.$alert("Setting Failed", "Prompt information", {
+              confirmButtonText: "OK",
+              callback: action => {
+                that.selectPortInfo(that.isActive);
+              }
+            });
         }
       }).catch(function(error) {
           console.log(error);
@@ -709,6 +754,10 @@ export default {
         data[i]&=(~(1<<n));
       }
       that.ChangeFlag=data;
+    },
+    refresh()
+    {
+      this.selectPortInfo(this.isActive);
     }
   },
   created() {
