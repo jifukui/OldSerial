@@ -232,7 +232,7 @@
         </p>
       </div>
       <div v-if="openSetInfo" class="setInfo">
-        <SetInfo :portSetInfo="setInfo" @closePage="CancelShow"></SetInfo>
+        <SetInfo :portSetInfo="setInfo" @closePage="CancelShow" @SelectPort="PortRefresh"></SetInfo>
       </div>
     </div>
   </div>
@@ -513,29 +513,30 @@ export default {
       }
     },
     // 端口号点击事件（返回数据）
-    openSet(index, dir, title, status) {
+    openSet(index, dir, title, status) 
+    {
+      console.log("Hello this ");
       if (title == "CLOSE") 
       {
         return false;
       }
       if (status == true) 
       {
+        console.log("Hello this 1");
         let that = this;
         let saveDir = "";
-        this.$axios
-          .get("/configuration.json")
-          .then(response => 
+        this.$axios.get("/configuration.json").then(response => 
           {
             let listInfo = response.data.data.port;
             let cardInfo = response.data.data.card;
             let portNumber = that.$store.state.portNumber;
-            console.log(listInfo);
             if (dir == "In") 
             {
               saveDir = 0;
               for (let i = 0; i < listInfo.in.length; i++) 
               {
-                if (listInfo.in[i].index == index) {
+                if (listInfo.in[i].index == index) 
+                {
                   if (portNumber == 16) 
                   {
                     for (let j = 0; j < cardInfo.length; j++) 
@@ -546,7 +547,8 @@ export default {
                         listInfo.in[i].portType = cardInfo[j].name;
                       }
                     }
-                  } else if (portNumber == 32) 
+                  } 
+                  else if (portNumber == 32) 
                   {
                     for (let j = 0; j < cardInfo.length; j++) 
                     {
@@ -556,7 +558,8 @@ export default {
                         listInfo.in[i].portType = cardInfo[j].name;
                       }
                     }
-                  } else if (portNumber == 64) 
+                  } 
+                  else if (portNumber == 64) 
                   {
                     for (let j = 0; j < cardInfo.length; j++) 
                     {
@@ -567,12 +570,14 @@ export default {
                       }
                     }
                   }
+                  console.log("In The i is "+i);
                   that.selectPortInfo(listInfo.in[i], saveDir, title, index);
                 }
               }
             } 
             else if (dir == "Out") 
             {
+              console.log("Hello this OUT");
               saveDir = 1;
               for (let i = 0; i < listInfo.out.length; i++) 
               {
@@ -611,9 +616,14 @@ export default {
                       }
                     }
                   }
+                  console.log("Out The i is "+i);
                   that.selectPortInfo(listInfo.out[i], saveDir, title, index);
                 }
               }
+            }
+            else
+            {
+              console.log("Hello this Error");
             }
           })
           .catch(function(error) {
@@ -635,7 +645,7 @@ export default {
       let hdcpStatus = "";
       let statusList = "";
       that.portSetInfo = {};
-      console.log(items);
+      console.log("selectPortInfo item " +JSON.stringify(items));
       that.portSetInfo.title = title;
       that.portSetInfo.index = items.index;
       that.portSetInfo.dir = dir;
@@ -644,52 +654,67 @@ export default {
       let aoData = {
         cmd: "GetHDCPStatus"
       };
-      this.$axios
-        .post("/cgi-bin/ligline.cgi", aoData)
-        .then(function(response) {
-          if (response.data.status == "SUCCESS") {
+      this.$axios.post("/cgi-bin/ligline.cgi", aoData).then(function(response) 
+      {
+          if (response.data.status == "SUCCESS") 
+          {
             statusList = response.data.echo.result.HDCPStatus;
-            for (let i = 0; i < statusList.length; i++) {
-              if (statusList[i].PortIndex == index) {
+            for (let i = 0; i < statusList.length; i++) 
+            {
+              if (statusList[i].PortIndex == index) 
+              {
                 console.log(statusList[i].HDCPStatus);
-                if (statusList[i].HDCPStatus == false) {
+                if (statusList[i].HDCPStatus == false) 
+                {
                   hdcpStatus = "none";
-                } else {
+                } 
+                else 
+                {
                   hdcpStatus = "1.4";
                 }
               }
             }
-            for (var i in items) {
+            for (var i in items) 
+            {
               if (
                 i == "index" ||
                 i == "dir" ||
                 i == "type" ||
                 i == "typeid" ||
                 i == "portType"
-              ) {
+              ) 
+              {
                 let iName = "";
-                if (items[i] == "v") {
+                if (items[i] == "v") 
+                {
                   items[i] = "Video Matrix";
                 }
-                if (items[i] == "a") {
+                if (items[i] == "a") 
+                {
                   items[i] = "Audio Matrix";
                 }
-                if (items[i] == "av") {
+                if (items[i] == "av") 
+                {
                   items[i] = "Audio & Video Matrix";
                 }
-                if (i == "index") {
+                if (i == "index") 
+                {
                   iName = "Index";
                 }
-                if (i == "dir") {
+                if (i == "dir") 
+                {
                   iName = "Direction";
                 }
-                if (i == "type") {
+                if (i == "type") 
+                {
                   iName = "Matrix Type";
                 }
-                if (i == "typeid") {
+                if (i == "typeid") 
+                {
                   iName = "Typeid";
                 }
-                if (i == "portType") {
+                if (i == "portType") 
+                {
                   iName = "Port Type";
                 }
                 let ht = {
@@ -698,19 +723,14 @@ export default {
                 };
                 staticAoData.push(ht);
               }
-              if (items[i].sid == 75) {
+              if (items[i].sid) 
+              {
                 let ht1 = {
                   Name: i,
                   Value: items[i].value
                 };
                 setInfo1.push(ht1);
-              }
-              if (that.coverString("hdcp", i) == true) {
-                let ht1 = {
-                  Name: i,
-                  Value: items[i].value
-                };
-                setInfo1.push(ht1);
+                //console.log("data is "+JSON.stringify(setInfo));
               }
             }
             staticAoData.push({
@@ -719,17 +739,20 @@ export default {
             });
             that.portSetInfo.Info = JSON.parse(JSON.stringify(staticAoData));
             that.portSetInfo.Setting = JSON.parse(JSON.stringify(setInfo1));
+            that.setInfo={};
             that.setInfo = JSON.parse(JSON.stringify(that.portSetInfo));
             that.openSetInfo = true;
             console.log(that.setInfo);
-          } else if (response.data.status == "ERROR") {
+          } 
+          else if (response.data.status == "ERROR") 
+          {
           }
-        })
-        .catch(function(error) {
+        }).catch(function(error) {
           console.log(error);
         });
     },
-    coverString(subStr, str) {
+    coverString(subStr, str) 
+    {
       var reg = eval("/" + subStr + "/ig");
       return reg.test(str);
     },
@@ -792,6 +815,14 @@ export default {
     CancelShow(value) {
       this.openSetInfo = false;
       this.showBtn = true;
+    },
+    PortRefresh(index,dir,title,status){
+      dir=dir==0?"In":"Out";
+      console.log("index "+index);
+      console.log("dir "+dir);
+      console.log("title "+title);
+      console.log("status "+status);
+      this.openSet(index,dir,title,status);
     },
     //获取端口的初始化信息
     getProInfo() {
@@ -881,10 +912,7 @@ export default {
       this.aoDataOut = sourceGroup;
       for(let i=0;i<this.$store.state.portNumber;i++)
       {
-        //console.log("The now is "+i);
         this.aoDataOut[i].switchSelect = this.$store.state.VideoALLChecked[i];
-        //console.log("The check status "+this.$store.state.VideoALLChecked[i]);
-        //console.log("The now check status "+this.aoDataOut[i].switchSelect);
       }
       this.aoData = JSON.parse(JSON.stringify(sourceGroup1));
       this.aoDataLength = this.aoData.length;
@@ -919,21 +947,23 @@ export default {
         {
           for(let j=0;j<this.aoData.length;j++)
           {
-            if (proVInfo[i].Dir == "Out" &&proVInfo[i].switch == this.aoData[j].portIndex) 
+            if (proVInfo[i].Dir == "Out") 
             {
+              let index = proVInfo[i].portIndex;
               for (let k = 0; k < this.aoData[j].sourceGroup.length; k++) 
               {
-                if (proVInfo[i].portIndex ==this.aoData[j].sourceGroup[k].portIndex) 
+                if (this.aoData[j].sourceGroup[k].portIndex == index) 
                 {
-                  this.aoData[j].sourceGroup[k].link_status = "true";
+                  if(proVInfo[i].switch == this.aoData[j].portIndex)
+                  {
+                    this.aoData[j].sourceGroup[k].link_status = "true";
+                  }
+                  else
+                  {
+                    this.aoData[j].sourceGroup[k].link_status = "no";
+                  }
+                  
                 }
-              }
-            }
-            else
-            {
-              for(let k=0;k<this.aoData[j].sourceGroup.length;k++)
-              {
-                this.aoData[j].sourceGroup[k].link_status = "no";
               }
             }
           }

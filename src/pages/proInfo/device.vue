@@ -131,12 +131,11 @@
                     : 'equipment_information_two_input1'
                 "
                 @keyup="Check('tcp')"
+                title="1~65535"
                 type="text"
                 id
                 ref="tcp"
                 value
-                onKeyUp="value=value.replace(/\D/g,'')"
-                onafterpaste="value=value.replace(/\D/g,'')"
               >
             </p>
 
@@ -148,12 +147,11 @@
                     : 'equipment_information_two_input1'
                 "
                 @keyup="Check('udp')"
+                title="1~65535"
                 type="text"
                 id
                 ref="udp"
                 value
-                onKeyUp="value=value.replace(/\D/g,'')"
-                onafterpaste="value=value.replace(/\D/g,'')"
               >
             </p>
             <p>
@@ -174,7 +172,7 @@
               <el-button class="btn" type="primary" @click="saveInfo" :disabled="!HaveChange" >Save Changes</el-button>
             </p>
             <p class="line40">
-              <el-button class="btn" type="primary" @click="downLoad">Get Configure File</el-button>
+              <el-button class="btn" type="primary" @click="downLoad">Get</el-button>
             </p>
             <p class="line40">
               <el-button class="btn" type="primary" @click="reset">Repower</el-button>
@@ -202,12 +200,28 @@
           title="Set Static IP Address"
           :visible.sync="staticip"
           :append-to-body="true"
-          width="500px"
+          width="400px"
           :close-on-click-modal="false"
         >
           <el-radio-group v-model="ipaddress">
-            <el-radio :label='"192.168.1.39"'></el-radio>
-            <el-radio :label=oldIpVal0></el-radio>
+            <el-radio :label="0" style="width:150px">Custom IP</el-radio>
+            <input
+                :class="
+                  staticipCheck == true
+                    ? 'equipment_information_two_input'
+                    : 'equipment_information_two_input1'
+                "
+                @change="GetCustomIP()"
+                v-model="customIP"
+                ref="custom"
+            >
+            <br>
+            <el-radio :label="1" style="width:150px">Default IP</el-radio>
+            <input
+                :class="'equipment_information_two_input'"
+                v-model="defaultip"
+                disabled="true"
+            >
           </el-radio-group>
           <div slot="footer" class="dialog-footer">
           <el-button @click="SetStaticIP(false)">CANCEL</el-button>
@@ -243,6 +257,7 @@ export default {
       nameCheck: true,
       maskCheck: true,
       gatewayCheck: true,
+      staticipCheck:true,
       name: "",
       tcp: "",
       udp: "",
@@ -259,8 +274,10 @@ export default {
       uploadedFiles: "",
       HaveChange:false,
       ChangeFlag:0,
-      ipaddress:"192.168.1.39",
-      staticip:false
+      ipaddress:1,
+      staticip:false,
+      customIP:"",
+      defaultip:"192.168.1.39"
     };
   },
   watch: {
@@ -563,6 +580,49 @@ export default {
       if (that.ckeckVal) 
       {
         val = 1;
+        /**DHCP on */
+        this.$confirm(
+          "Open DHCP,You Network Settings will change,should  Press OK to confirm",
+          "Prompt information",
+          {
+            confirmButtonText: "Ok",
+            cancelButtonText: "Cancel",
+            type: "warning",
+            closeOnClickModal: false,
+            dangerouslyUseHTMLString: true
+          }).then(() => {
+            let aoData = 
+            {
+              cmd: "SetDHCPStatus",
+              Data: 
+              {
+                dhcp: val
+              }
+            };
+            this.$axios.post("/cgi-bin/ligline.cgi", aoData).then(function(response) 
+            {
+              if (response.data.status == "SUCCESS") 
+              {
+                console.log("DHCP OK");
+              } 
+              else if (response.data.status == "ERROR") 
+              {
+                console.log("DHCP Error");
+                that.ckeckVal=false;
+              }
+            }).catch(function(error) 
+              {
+                that.ckeckVal=false;
+                console.log(error);
+              });
+          }).catch(() => {
+            let sendata = {
+              resetSure: "取消重置信息"
+              
+            };
+            that.ckeckVal=false;
+            console.log(sendata);
+          });
       } 
       else 
       {
@@ -648,6 +708,10 @@ export default {
               {
                 if (response.data.status == "SUCCESS") 
                 {
+                  that.$message({
+                  message: "Setting DNS Name Successful",
+                  type: "success"
+                });
                 } 
                 else if (response.data.status == "ERROR") 
                 {
@@ -671,14 +735,43 @@ export default {
             {
               if (response.data.status == "SUCCESS") 
               {
+                 that.$message({
+                  message: "Save success",
+                  type: "success"
+                });
+                if((that.ChangeFlag&2)==2)
+                {
+                  console.log("chanage ip 11"+ipaddr)
+                  window.location.href = "http://" +ipaddr;
+                  that.ChangeFlag=1;
+                  that.HaveChange=false;
+                }
+                else
+                {
+                  console.log("The Old ip is "+that.oldIpVal0);
+                  that.oldIpVal0=ipaddr;
+                  that.oldMaskVal0=maskaddr;
+                  that.oldGateVal0=gateway;
+                  that.oldTcpVal0=tcp;
+                  that.oldUdpVal0=udp;
+                  that.ChangeFlag=0;
+                  that.HaveChange=false;
+                }
               } 
               else if (response.data.status == "ERROR") 
               {
-                
+                that.$alert("Network Setting Failed", "Prompt information", {
+                  confirmButtonText: "OK",
+                  callback: action => {}
+                });
+                that.ChangeFlag=0;
+                that.HaveChange=false;
               }
             }).catch(function(error) 
               {
                 console.log(error);
+                that.ChangeFlag=0;
+                that.HaveChange=false;
               });
             if((that.ChangeFlag&2)==2)
             {
@@ -740,16 +833,16 @@ export default {
               {
                 window.location.href = "http://" + ip_addr;
                 }, 80000);
-              } 
-              else if (response.data.status == "ERROR") 
+            } 
+            else if (response.data.status == "ERROR") 
+            {
+              that.$alert(response.data.error, "Prompt information", 
               {
-                that.$alert(response.data.error, "Prompt information", 
-                {
-                  confirmButtonText: "OK",
-                  callback: action => {}
-                });
-              }
-            }).catch(function(error) 
+                confirmButtonText: "OK",
+                callback: action => {}
+              });
+            }
+          }).catch(function(error) 
             {
               console.log(error);
             });
@@ -839,24 +932,90 @@ export default {
           that.oldGateVal0 = that.SetIPAddress(JSON.parse(JSON.stringify(response.data.data.communication.Ethernet[0].gate)));
           that.oldTcpVal0 = JSON.parse(JSON.stringify(response.data.data.communication.Ethernet[0].tcp));
           that.oldUdpVal0 = JSON.parse(JSON.stringify(response.data.data.communication.Ethernet[0].udp));
+          that.customIP=that.oldIpVal0;
           }).catch(function(error) {
           console.log(error);
         });
     },
     SetStaticIP(value)
     {
-      this.staticip=false;
+      
       if(value)
       {
-        console.log("设置静态IP "+this.ipaddress);
+        let ipaddr=this.ipaddress==0?this.customIP:this.defaultip;
+        console.log("设置静态IP "+ipaddr);
+        if(this.staticipCheck==false)
+        {
+          this.$message(
+          {
+            message: "Please Check IP Address",
+            type: "warning"
+          });
+        }
+        else
+        {
+          this.staticip=false;
+          console.log("设置网络参数");
+          let setInfo={};
+          setInfo.ip=ipaddr;
+          setInfo.mask = this.oldMaskVal0;
+          setInfo.gateway = this.oldGateVal0;
+          let time=setTimeout(function() 
+          {
+            window.location.href = "http://"+ipaddr;
+          }, 8000);
+          let aoData = {
+            cmd: "SetNetwork",
+            Data: setInfo
+          };
+          this.$axios.post("/cgi-bin/ligline.cgi", aoData).then(function(response) 
+          {
+            if (response.data.status == "SUCCESS") 
+            {
+                that.$message({
+                message: "Save success",
+                type: "success"
+              });
+            } 
+            else if (response.data.status == "ERROR") 
+            {
+              clearTimeout(time);
+              that.$alert("Close DHCP Error", "Prompt information", {
+                confirmButtonText: "OK",
+                callback: action => {}
+              });  
+            }
+          }).catch(function(error) 
+            {
+              console.log(error);
+            });
+        }
       }
       else
       {
         console.log("取消设置静态IP ");
+        this.ckeckVal=true;
+        this.staticip=false;
+      }    
+      this.staticipCheck=true;
+    },
+    GetCustomIP()
+    {
+      let ipaddr = this.SetIPAddress(this.$refs.custom.value);
+      this.staticipCheck=this.$checkInp.fnValidateIPAddress(ipaddr);
+      if(this.staticipCheck)
+      {
+        this.customIP=ipaddr;
+        console.log("The ip address is "+this.customIP);
+      }
+      else
+      {
+        this.customIP=this.oldIpVal0;
       }
     },
     ChooseFile() {}
   },
+  
   created() {},
   mounted() {
     let that = this;

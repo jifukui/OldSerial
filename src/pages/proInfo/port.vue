@@ -139,7 +139,7 @@
                 <el-button
                   class="btn"
                   type="primary"
-                  @click="refresh()"
+                  @click="refresh()">
                   Refresh
                 </el-button>
               </td>
@@ -299,6 +299,7 @@ export default {
             ]
           };
           console.log("The data is " + JSON.stringify(data));
+          that.$store.state.PageLoading=true;
           this.$axios.post("/cgi-bin/ligline.cgi", data).then(function(response) 
           {
             if (response.data.status == "SUCCESS") 
@@ -307,7 +308,7 @@ export default {
                   confirmButtonText: "OK",
                   callback: action => {
                     setTimeout(() => {
-                      that.PortRefresh();
+                      that.refresh();
                       that.$store.state.PageLoading=false;
                     }, 3000);
                   }
@@ -317,11 +318,14 @@ export default {
             {
               that.$alert(errorstr, "Prompt information", {
                   confirmButtonText: "OK",
-                  callback: action => {}
+                  callback: action => {
+                    that.$store.state.PageLoading=false;
+                  }
                 });
             }
           }).catch(function(error) {
               console.log(error);
+              that.$store.state.PageLoading=false;
             });
         }).catch(() => {
           let sendata = {
@@ -338,7 +342,17 @@ export default {
       that.loading = true;
       let portList = [];
       let portNumber = that.$store.state.portNumber;
-      that.isActive = index;
+      if(index<0)
+      {
+        that.isActive = "";
+        that.isPort = false;
+        that.loading = false;
+        return ;
+      }
+      else
+      {
+        that.isActive = index;
+      }
       if (portNumber == 16) 
       {
         that.$axios(that.$indexJsonUrl).then(response => {
@@ -421,7 +435,6 @@ export default {
             }
           }
         }
-        //console.log("port list is "+JSON.stringify(portList));
         for (let j = 0; j < portList.length; j++) 
         {
           if (index == portList[j].portIndex) 
@@ -568,7 +581,8 @@ export default {
         return false;
       }
       that.ChangeFlag=new Array();
-      console.log("The data is " + JSON.stringify(data));
+      that.$store.state.PageLoading=true;
+      //console.log("The data is " + JSON.stringify(data));
       this.$axios.post("/cgi-bin/ligline.cgi", data).then(function(response) 
       {
         that.$conf.PortInfoAv.info=JSON.parse(JSON.stringify(that.$conf.BasePortInfo.info));
@@ -576,38 +590,39 @@ export default {
         if (response.data.status == "SUCCESS") 
         {
           if(response.data.error)
+          {
+            let i=0,n=0;
+            let errortitle=[];
+            let errorstr="";
+            let errorvalue=response.data.error.split(",");
+            for(i=0;i<errorvalue.length;i++)
             {
-              let i=0,n=0;
-              let errortitle=[];
-              let errorstr="";
-              let errorvalue=response.data.error.split(",");
-              for(i=0;i<errorvalue.length;i++)
+              for(n=0;n<that.$conf.PortInfoAv.info.length;n++)
               {
-                for(n=0;n<that.$conf.PortInfoAv.info.length;n++)
+                if(that.$conf.PortInfoAv.info[n].sid==errorvalue[i])
                 {
-                  if(that.$conf.PortInfoAv.info[n].sid==errorvalue[i])
-                  {
-                    errortitle.push(that.$conf.PortInfoAv.info[n].id);
-                  }
+                  errortitle.push(that.$conf.PortInfoAv.info[n].id);
                 }
               }
-              errorstr=errortitle.join(",");
-              errorstr+=" Setting Failed";
-              that.$message({
-                message: errorstr,
-                type: "warning"
-              });
-              setTimeout(() => {
-                that.selectPortInfo(that.isActive);
-              }, 1000);
             }
-            else
-            {
-                that.$message({
-                message: "Save success",
-                type: "success"
-              });
-            }  
+            errorstr=errortitle.join(",");
+            errorstr+=" Setting Failed";
+            that.$message({
+              message: errorstr,
+              type: "warning"
+            });
+            setTimeout(() => {
+              that.selectPortInfo(that.isActive);
+            }, 1000);
+          }
+          else
+          {
+              that.$message({
+              message: "Save success",
+              type: "success"
+            });
+          }  
+          that.$store.state.PageLoading=false;
         } 
         else if (response.data.status == "ERROR") 
         {
@@ -615,6 +630,7 @@ export default {
               confirmButtonText: "OK",
               callback: action => {
                 that.selectPortInfo(that.isActive);
+                that.$store.state.PageLoading=false;
               }
             });
         }
@@ -647,9 +663,15 @@ export default {
               }
             }
           }
-          //console.log("getOnline");
           that.portList=JSON.parse(JSON.stringify(list));
-          that.selectPortInfo(that.portList[0].portIndex);
+          if(that.portList.length>0)
+          {
+            that.selectPortInfo(that.portList[0].portIndex);
+          }
+          else
+          {
+
+          }
         } 
         else if (response.data.status == "ERROR") 
         {
@@ -667,18 +689,14 @@ export default {
       {
         that.$axios(that.$indexJsonUrl).then(response => {
           let portList = response.data.Port;
-          that.getOnline(portList);
-          //console.log("getJson");
-          //console.log("port list is "+JSON.stringify(that.portList));
-          //that.selectPortInfo(that.portList[0].portIndex);
+          that.getOnline(portList);    
         });
       } 
       else if (portNumber == 32) 
       {
         that.$axios(that.$indexJsonUrl32).then(response => {
           let portList = response.data.Port;
-          that.getOnline(portList);
-          //that.selectPortInfo(that.portList[0].portIndex);
+          that.getOnline(portList); 
         });
       } 
       else if (portNumber == 64) 
@@ -686,7 +704,6 @@ export default {
         that.$axios(that.$indexJsonUrl64).then(response => {
           let portList = response.data.Port;
           that.getOnline(portList);
-          //that.selectPortInfo(that.portList[0].portIndex);
         });
       }
     },

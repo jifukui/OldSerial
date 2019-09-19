@@ -807,8 +807,14 @@ export default {
           }
           
         }
-        //console.log("card list is "+JSON.stringify(that.cardList));
-        that.selectCardInfo(that.cardList[0].slot, that.cardList[0].type, that.cardList[0]);
+        if(that.cardList.length>0)
+        {
+          that.selectCardInfo(that.cardList[0].slot, that.cardList[0].type, that.cardList[0]);
+        }
+        else
+        {
+          that.selectCardInfo("", -1, "");
+        }
         }).catch(function(error) 
         {
           console.log(error);
