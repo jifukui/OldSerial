@@ -137,7 +137,7 @@
               v-else-if="isSelectAll"
               class="link_status"
               :class="{ checked: items.checked }"
-              :title="aoData[index].title+'>ALL'"
+              :title="items.title+'>ALL'"
               @click="selectedSwitchAll(items, items.indexTitle)"
               @mouseenter="showPortLink(index)"
               @mouseleave="hidePortLink(index)"
@@ -158,7 +158,7 @@
                 <div
                   v-if="interitems.link_status == 'no'"
                   class="link_status_no"
-                  :title="aoData[index].title+'>'+aoDataOut[interindex].title"
+                  :title="items.title+'>'+interitems.title"
                   @mouseenter="showPortLink(index, interindex)"
                   @mouseleave="hidePortLink(index, interindex)"
                 ></div>
@@ -166,7 +166,7 @@
                   v-else-if="interitems.link_status == 'true'"
                   class="link_status"
                   :class="{ checked: true }"
-                  :title="aoData[index].title+'>'+aoDataOut[interindex].title"
+                  :title="items.title+'>'+interitems.title"
                   @mouseenter="showPortLink(index, interindex)"
                   @mouseleave="hidePortLink(index, interindex)"
                 ></div>
@@ -180,7 +180,7 @@
                       interitems.indexTitle
                     )
                   "
-                  :title="aoData[index].title+'>'+aoDataOut[interindex].title"
+                  :title="items.title+'>'+interitems.title"
                   @mouseenter="showPortLink(index, interindex)"
                   @mouseleave="hidePortLink(index, interindex)"
                 ></div>
@@ -195,7 +195,7 @@
                       interitems.indexTitle
                     )
                   "
-                  :title="aoData[index].title+'>'+aoDataOut[interindex].title"
+                  :title="items.title+'>'+interitems.title"
                   @mouseenter="showPortLink(index, interindex)"
                   @mouseleave="hidePortLink(index, interindex)"
                 ></div>
@@ -363,6 +363,12 @@ export default {
       if (that.ckeckVal) 
       {
         that.isSelectAll = true;  
+        console.log("The this.aoDataOut.length "+this.aoDataOut.length);
+        for (let i = 0; i < this.aoDataOut.length; i++) 
+        { 
+          this.aoDataOut[i].switchSelect = true;
+          this.$store.state.VideoALLChecked[i]=true;          
+        }
       } 
       else 
       {
@@ -419,13 +425,17 @@ export default {
       });
     },
     //多切功能
-    selectedSwitchAll(items, index) {
-      console.log(items);
+    selectedSwitchAll(items, index) 
+    {
+      let jidata=JSON.parse(JSON.stringify(this.videoRouting));
+      //console.log(items);
+      //console.log("Will "+JSON.stringify(jidata));
       let aoOut = [];
       let routingData = "";
       let that = this;
       that.switchLoading = true;
       that.$store.state.PageLoading=true;
+      window.clearInterval(window.myInterval);
       for (let i = 0; i < that.aoData.length; i++) 
       {
         that.aoData[i].link_status = "false";
@@ -440,17 +450,19 @@ export default {
         if (this.aoDataOut[i].switchSelect == true) 
         {
           aoOut.push(this.aoDataOut[i].indexTitle);
-          routingData = {
-            Outport: aoOut,
-            Inport: index
-          };
+          jidata[this.aoDataOut[i].indexTitle-1].InPort=items.indexTitle;
         }
       }
+      routingData = {
+        Outport: aoOut,
+        Inport: index
+      };
       let aoData = {
         cmd: "VideoSetting",
         Data: routingData
       };
-      this.$axios.post("/cgi-bin/ligline.cgi", aoData).then(function(response) {
+      this.$axios.post("/cgi-bin/ligline.cgi", aoData).then(function(response) 
+      {
         if (response.data.status == "SUCCESS") 
         {
           for (let i = 0; i < that.aoData.length; i++) 
@@ -479,16 +491,26 @@ export default {
             }
           }
           that.switchLoading = false;
-          that.$store.state.PageLoading=false;
+          that.videoRouting=JSON.parse(JSON.stringify(jidata));
+          //console.log("next "+JSON.stringify(that.videoRouting));
+          that.$store.state.PageLoading=false; 
         } 
         else if (response.data.status == "ERROR") 
         {
           that.switchLoading = false;
           that.$store.state.PageLoading=false;
         }
+        //that.getportInfo();
+        window.myInterval = setInterval(function() {
+        that.getportInfo();
+        }, 3000);
       }).catch(function(error) {
         that.switchLoading = false;
         that.$store.state.PageLoading=false;
+        //that.getportInfo(); 
+        window.myInterval = setInterval(function() {
+        that.getportInfo();
+        }, 3000);
         console.log(error);
       });
     },
@@ -645,7 +667,7 @@ export default {
       let hdcpStatus = "";
       let statusList = "";
       that.portSetInfo = {};
-      console.log("selectPortInfo item " +JSON.stringify(items));
+      //console.log("selectPortInfo item " +JSON.stringify(items));
       that.portSetInfo.title = title;
       that.portSetInfo.index = items.index;
       that.portSetInfo.dir = dir;
@@ -853,6 +875,7 @@ export default {
     getportNumInfo() 
     {
       //console.log(this.allPortInfo.data);
+      //console.log("The end is "+JSON.stringify(this.videoRouting));
       if(typeof this.allPortInfo.data=='undefined')
       {
         return false;
@@ -910,7 +933,7 @@ export default {
         }
       }
       this.aoDataOut = sourceGroup;
-      for(let i=0;i<this.$store.state.portNumber;i++)
+      for(let i=0;i<this.$store.state.portNumber+1;i++)
       {
         this.aoDataOut[i].switchSelect = this.$store.state.VideoALLChecked[i];
       }

@@ -23,7 +23,10 @@ const state = {
   VideoALLChecked:[],
   Settingsname:"first",
   JiFileSize:0,
-  PageLoading:false
+  PageLoading:false,
+  EDIDActive:-1,
+  EDIDType:1,
+  EDIDDefault:true
 }
 
 

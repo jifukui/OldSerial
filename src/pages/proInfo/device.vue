@@ -162,7 +162,7 @@
         <div class="box">
           <div class="left">
             <p class="line40">Save Changes:</p>
-            <p class="line40">Get Configure File:</p>
+            <p class="line40">Configuration File:</p>
             <p class="line40">Reset:</p>
             <p class="line40">Refresh:</p>
             <!-- <p class="line40">ISP Mode:</p> -->
@@ -668,8 +668,8 @@ export default {
       this.ipCheck=this.$checkInp.fnValidateIPAddress(ipaddr);
       this.maskCheck=this.$checkInp.fnValidateMask(maskaddr);
       this.gatewayCheck=this.$checkInp.fnValidateGateway(gateway);
-      this.tcpCheck=this.$checkInp.fnValidateIcp(tcp);
-      this.udpCheck=this.$checkInp.fnValidateUdp(udp);
+      this.tcpCheck=this.$checkInp.fnValidateIcp(tcp,udp);
+      this.udpCheck=this.$checkInp.fnValidateUdp(udp,tcp);
       this.nameCheck=this.$checkInp.fnValidateName(nameaddr)
       if (
         this.ipCheck &&
@@ -711,11 +711,15 @@ export default {
                   that.$message({
                   message: "Setting DNS Name Successful",
                   type: "success"
-                });
+                  });
+                  if(that.ChangeFlag==1)
+                  {
+                    that.ChangeFlag=0;
+                  }
                 } 
                 else if (response.data.status == "ERROR") 
                 {
-                  that.$alert(response.data.error, "Prompt information", {
+                  that.$alert("Setting DNS Name Failed", "Prompt information", {
                   confirmButtonText: "OK",
                   callback: action => {}
                     });
@@ -742,9 +746,6 @@ export default {
                 if((that.ChangeFlag&2)==2)
                 {
                   console.log("chanage ip 11"+ipaddr)
-                  window.location.href = "http://" +ipaddr;
-                  that.ChangeFlag=1;
-                  that.HaveChange=false;
                 }
                 else
                 {
@@ -755,7 +756,7 @@ export default {
                   that.oldTcpVal0=tcp;
                   that.oldUdpVal0=udp;
                   that.ChangeFlag=0;
-                  that.HaveChange=false;
+                  //that.HaveChange=false;
                 }
               } 
               else if (response.data.status == "ERROR") 
@@ -765,13 +766,13 @@ export default {
                   callback: action => {}
                 });
                 that.ChangeFlag=0;
-                that.HaveChange=false;
+                //that.HaveChange=false;
               }
             }).catch(function(error) 
               {
                 console.log(error);
                 that.ChangeFlag=0;
-                that.HaveChange=false;
+                //that.HaveChange=false;
               });
             if((that.ChangeFlag&2)==2)
             {

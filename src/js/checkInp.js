@@ -41,7 +41,7 @@ checkInp.fnValidateIPAddress = function (ipInput) {
     }
 }
 checkInp.fnValidateName = function (nameInput) {
-    var re = /^^\w{1,15}$/;
+    var re = /^[a-zA-Z]{1}\w{0,14}$/;
     if (re.test(nameInput)) 
     {
         return true;
@@ -137,17 +137,33 @@ checkInp.fnValidateGateway = function (gateWayInp) {
         return false;
     }
 }
-checkInp.fnValidateIcp = function (tcpInput) {
-    if (tcpInput > 65535 || tcpInput < 1) {
+checkInp.fnValidateIcp = function (tcpInput,udp) 
+{
+    if(tcpInput==udp)
+    {
         return false;
-    } else {
+    }
+    if (tcpInput > 65535 || tcpInput < 1) 
+    {
+        return false;
+    } 
+    else 
+    {
         return true;
     }
 }
-checkInp.fnValidateUdp = function (udpInput) {
-    if (udpInput > 65535 || udpInput < 1) {
+checkInp.fnValidateUdp = function (udpInput,tcp) 
+{
+    if(udpInput==tcp)
+    {
         return false;
-    } else {
+    }
+    if (udpInput > 65535 || udpInput < 1) 
+    {
+        return false;
+    } 
+    else 
+    {
         return true;
     }
 }

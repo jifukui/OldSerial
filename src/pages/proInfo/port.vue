@@ -358,6 +358,10 @@ export default {
         that.$axios(that.$indexJsonUrl).then(response => {
           portList = response.data.Port;
           that.showPortInfo(portList, index);
+        }).catch(function(error){
+          setTimeout(() => {
+            that.selectPortInfo(index);
+          }, 2000);
         });
       } 
       else if (portNumber == 32) 
@@ -365,6 +369,10 @@ export default {
         that.$axios(that.$indexJsonUrl32).then(response => {
           portList = response.data.Port;
           that.showPortInfo(portList, index);
+        }).catch(function(error){
+          setTimeout(() => {
+            that.selectPortInfo(index);
+          }, 2000);
         });
       } 
       else if (portNumber == 64) 
@@ -372,6 +380,10 @@ export default {
         that.$axios(that.$indexJsonUrl64).then(response => {
           portList = response.data.Port;
           that.showPortInfo(portList, index);
+        }).catch(function(error){
+          setTimeout(() => {
+            that.selectPortInfo(index);
+          }, 2000);
         });
       }
     },
@@ -531,6 +543,9 @@ export default {
         }
       }).catch(function(error) {
         console.log(error);
+        setTimeout(() => {
+          showPortInfo(portList, index);
+        }, 2000);
       });
     },
     /**设置端口参数 */
@@ -690,6 +705,10 @@ export default {
         that.$axios(that.$indexJsonUrl).then(response => {
           let portList = response.data.Port;
           that.getOnline(portList);    
+        }).catch(function(error){
+          setTimeout(() => {
+            that.selectPortInfo(index);
+          }, 2000);
         });
       } 
       else if (portNumber == 32) 
@@ -697,6 +716,10 @@ export default {
         that.$axios(that.$indexJsonUrl32).then(response => {
           let portList = response.data.Port;
           that.getOnline(portList); 
+        }).catch(function(error){
+          setTimeout(() => {
+            that.selectPortInfo(index);
+          }, 2000);
         });
       } 
       else if (portNumber == 64) 
@@ -704,6 +727,10 @@ export default {
         that.$axios(that.$indexJsonUrl64).then(response => {
           let portList = response.data.Port;
           that.getOnline(portList);
+        }).catch(function(error){
+          setTimeout(() => {
+            that.selectPortInfo(index);
+          }, 2000);
         });
       }
     },

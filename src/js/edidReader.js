@@ -14,7 +14,7 @@ var EDID={
     dataBlocks:[],
     Check:[],
     edidTable:"",
-
+    edidErrorInfo:"",
 };
 EDID.setEdidData=function(data)
 {
@@ -56,16 +56,19 @@ EDID.isValidEdid = function ()
         EDID.data[7] != "00")
     {
         valid = false;
+        EDID.edidErrorInfo="EDID Header Error";
         return valid;
     }
     if(EDID.data[0x36]=="00"&&EDID.data[0x37]=="00")
     {
         valid = false;
+        EDID.edidErrorInfo="EDID Video Information Error";
         return valid;
     }
     if(parseInt(EDID.data[127],16)!=EDID.Check[0])
     {
         valid = false;
+        EDID.edidErrorInfo="EDID Block 1 redundancy Error"
         return valid;
     }
     if(EDID.length!=128)
@@ -73,11 +76,13 @@ EDID.isValidEdid = function ()
         if(parseInt(EDID.data[0x82],16)>=1&&parseInt(EDID.data[0x82],16)<=3||parseInt(EDID.data[0x82],16)>0x6d)
         {
             valid = false;
+            EDID.edidErrorInfo="EDID Length Error";
             return valid;
         }
         if((parseInt(EDID.data[0x83],16)&0xf)>7)
         {
             valid = false;
+            EDID.edidErrorInfo="EDID Length Error";
             return valid;
         }
         var i;
@@ -86,6 +91,7 @@ EDID.isValidEdid = function ()
             if(parseInt(EDID.data[i*128-1],16)!=EDID.Check[i-1])
             {
                 valid = false;
+                EDID.edidErrorInfo="EDID Block "+i+ " redundancy Error";
                 return valid;
             }
         }
@@ -351,7 +357,13 @@ EDID.GetCheck=function (dataArray) {
         sum=0x100-sum;
         CheckNum[i]=sum;
     }
+    CheckNum[i]=sum%256;
     return CheckNum;
 };
+EDID.EDIDERR=function()
+{
+    //console.log("jifukui "+EDID.edidErrorInfo)
+    return EDID.edidErrorInfo;
+}
 export default EDID;
 //@ sourceURL=edidReader.js

@@ -13,7 +13,6 @@
               @click="outClcick(item.output, item.classIndex)"
               :class="{ active: item.classIndex == isActive }"
               :key="index"
-              :disabled="selecting"
             >
               {{ item.output }}
             </button>
@@ -24,14 +23,13 @@
               @click="inClcick(item.input, item.classIndex)"
               :class="{ active: item.classIndex == isActive }"
               :key="index"
-              :disabled="selecting"
+              
             >
               {{ item.input }}
             </button>
           </div>
           <button
             class="set_content_one_default disabledBtn"
-            :disabled="selecting"
             :style="
               style_bg == true
                 ? 'background: #fff; color: #333;'
@@ -50,7 +48,6 @@
           />
           <button
             class="set_content_one_file disabledBtn"
-            :disabled="selecting"
             :style="
               edidFile == true
                 ? 'background:#409EFF;color:#fff'
@@ -105,7 +102,6 @@
           <el-button
             class="set_content_two_copy disabledCopyBtn"
             v-show="showCopy"
-            :disabled="selecting"
             :loading="selecting == true ? true : false"
             @click="edidCopyClick()"
             >{{ copyBtn }}</el-button
@@ -155,9 +151,9 @@ export default {
       fileList: [],
       uploadsuccess: false,
       // 点击变色
-      style_bg: true, //Default按钮状态
+      style_bg: this.$store.state.EDIDDefault, //Default按钮状态
       edidFile: false, //上传文件按钮状态
-      isActive: -1, //输入输出按钮状态
+      isActive: this.$store.state.EDIDActive, //输入输出按钮状态
       // 中间部分
       ModuleName: "",
       size: "",
@@ -178,17 +174,18 @@ export default {
       EDIDData: "",
       EDIDinfo: "",
       trueEdid: true,
-      type: "",
+      type: this.$store.state.EDIDType,
       indexNumber: 0,
       selecting: false,
-      copyBtn: "COPY"
+      copyBtn: "COPY",
+      onlineInfo:[],
+      EDIDData:null
     };
   },
   watch: {
-    selectMsg(val, oldval) 
+    selectMsg(val) 
     {
-      // console.log(val, oldval);
-      if (oldval.length == 0) 
+      if (val.length == 0) 
       {
         this.selectInput = false;
         this.showCopy = false;
@@ -199,12 +196,52 @@ export default {
         this.showCopy = true;
       }
     },
-    fileList(val, oldval) {
+    fileList(val, oldval) 
+    {
       console.log(val, oldval);
-      if (oldval.length == 0) {
+      if (oldval.length == 0) 
+      {
         this.uploadsuccess = false;
-      } else {
+      } 
+      else 
+      {
         this.uploadsuccess = true;
+      }
+    },
+    isActive(value)
+    {
+      this.$store.state.EDIDActive=value;
+      this.EDIDData="";
+    },
+    style_bg(value)
+    {
+      this.$store.state.EDIDDefault=value;
+      this.EDIDData="";
+    },
+    type(value)
+    {
+      this.$store.state.EDIDType=value;
+    },
+    trueEdid(value)
+    {
+      if(value)
+      {
+        this.selecting=false;
+      }
+      else
+      {
+        this.selecting=true;
+        this.selectMsg=[];
+        this.copyIndex=[];
+        for(let i=0;i<this.copyInput.length;i++)
+        {
+          if(this.copyInput[i].checked!="undefined")
+          {
+            this.$delete(this.copyInput[i],"checked");
+          }
+        }
+        this.ischecked=false;
+        
       }
     }
   },
@@ -224,6 +261,11 @@ export default {
       } 
       else 
       {
+        if(this.onlineInfo.length>0&&(!this.onlineInfo[classIndex-1].Linkstatus))
+        {
+          this.trueEdid=false;
+          return ;
+        }
         this.type = 1;
         let that = this;
         this.$axios.get("/configuration.json").then(response => {
@@ -288,6 +330,7 @@ export default {
     //点击默认按钮
     defaultClick() 
     {
+      console.log("defaultClick");
       if (this.isActive != -1) 
       {
         let type = 0;
@@ -308,15 +351,15 @@ export default {
             }
           }
           let that = this;
-          this.$axios.get("/configuration.json").then(response => {
+          that.$axios.get("/configuration.json").then(response => {
               let proVInfo = response.data.data.port;
               if (type == 1) 
               {
                 for (let j = 0; j < proVInfo.out.length; j++) 
                 {
-                  if (proVInfo.out[j].index == this.isActive) 
+                  if (proVInfo.out[j].index == that.isActive) 
                   {
-                    if (proVInfo.out[j].EDID) 
+                    if (that.onlineInfo>0&&(!that.onlineInfo[that.isActive-1].Linkstatus)(proVInfo.out[j].EDID)) 
                     {
                       that.EDIDHandle(proVInfo.out[j].EDID.value);
                     } 
@@ -363,6 +406,7 @@ export default {
     ReadEDIDFile() 
     {
       let that = this;
+      this.EDIDData="";
       let file = document.getElementById("EDIDFile").files[0];
       let re = /.bin$/i;
       let SafariFlag = navigator.userAgent.search("Safari");
@@ -388,8 +432,10 @@ export default {
         reader = new FileReader();
         that.Uploading = file.name;
         reader.readAsArrayBuffer(file);
-        reader.onprogress = function() {
-          reader.onload = function() {
+        reader.onprogress = function() 
+        {
+          reader.onload = function() 
+          {
             var aByte, byteStr;
             console.log(reader.result);
             let result = new Uint8Array(reader.result);
@@ -444,6 +490,8 @@ export default {
         });
         return false;
       }
+      that.$store.state.PageLoading=true;
+      window.clearInterval(window.GetPortOnline);
       that.copyBtn = "COPYING";
       that.selecting = true;
       if (this.edidFile == false) 
@@ -462,6 +510,10 @@ export default {
           setTimeout(function() {
             that.selecting = false;
             that.copyBtn = "COPY";
+            that.$store.state.PageLoading=false;
+            window.GetPortOnline=setInterval(function() {
+              that.getOnline();
+            }, 3000);
           }, 2000);
         }
       } 
@@ -526,6 +578,10 @@ export default {
           }
         }).catch(function(error) {
           console.log(error);
+          that.$store.state.PageLoading=false;
+          window.GetPortOnline=setInterval(function() {
+            that.getOnline();
+          }, 3000);
         });
     },
     /**拷贝上传的EDID */
@@ -626,6 +682,10 @@ export default {
         this.selectMsg.push(ht);
         this.copyIndex.push(ht);
         this.selectMsg.sort(this.compare("index"));
+        if(this.copyIndex.length==this.inputdata.length)
+        {
+          this.ischecked = true;
+        }
       } 
       else 
       {
@@ -656,8 +716,6 @@ export default {
       }
     },
     // 插件调用的函数
-    edidClear() {},
-    ischecked() {},
     handleSuccess(response, file, fileList) 
     {
       this.uploadsuccess = true;
@@ -678,68 +736,141 @@ export default {
     EDIDHandle(data) 
     {
       let that = this;
-      that.trueEdid = true;
-      //that.$EDID.setEdidData(data);
-      if (that.$EDID.setEdidData(data) == "errorEDID") 
+      if(that.EDIDData!==data)
       {
-        that.$alert("ERROR EDID", "Prompt information", {
-          confirmButtonText: "OK",
-          callback: action => {}
-        });
-        that.trueEdid = false;
-        return false;
-      } 
-      else 
-      {
-        that.ModuleName = that.$EDID.getName();
-        that.size = that.$EDID.getNativeResolution();
-        that.audio = that.$EDID.getAudioChannels();
-        that.Model = that.$EDID.getLength();
+        that.EDIDData=data;
+        if (that.$EDID.setEdidData(data) == "errorEDID") 
+        {
+          that.$alert("ERROR EDID: "+that.$EDID.EDIDERR(), "Prompt information", {
+            confirmButtonText: "OK",
+            callback: action => {}
+          });
+          that.trueEdid = false;
+          return false;
+        } 
+        else 
+        {
+          that.trueEdid = true;
+          that.ModuleName = that.$EDID.getName();
+          that.size = that.$EDID.getNativeResolution();
+          that.audio = that.$EDID.getAudioChannels();
+          that.Model = that.$EDID.getLength();
+        }
       }
+      //that.$EDID.setEdidData(data);
+      
     },
     getProInfo() 
     {
       let that = this;
-      this.$axios
-        .get("/configuration.json")
-        .then(response => {
-          let proVInfo = response.data.data.port;
-          that.outputdata = [];
-          that.inputdata = [];
-          that.copyInput = [];
-          for (let j = 0; j < proVInfo.in.length; j++) 
+      this.$axios.get("/configuration.json").then(response => {
+        let proVInfo = response.data.data.port;
+        that.outputdata = [];
+        that.inputdata = [];
+        that.copyInput = [];
+        for (let j = 0; j < proVInfo.in.length; j++) 
+        {
+          let i = j + 1;
+          if (j < proVInfo.in.length) 
           {
-            let i = j + 1;
-            if (j < proVInfo.in.length - 1) 
+            if(proVInfo.in[j].typeid>0)
             {
               that.inputdata.push({
                 classIndex: proVInfo.in[j].index,
                 index: i,
-                input: "in" + i
+                input: "IN" + i
               });
               that.copyInput.push({
                 classIndex: proVInfo.in[j].index,
                 index: i,
-                title: "in" + i
+                title: "IN" + i
               });
             }
           }
-          for (let j = 0; j < proVInfo.out.length; j++) 
+        }
+        for (let j = 0; j < proVInfo.out.length; j++) 
+        {
+          let i = j + 1;
+          if(proVInfo.out[j].typeid>0)
           {
-            let i = j + 1;
             that.outputdata.push({
               classIndex: proVInfo.out[j].index,
               index: i,
-              output: "out" + i
+              output: "OUT" + i
             });
           }
-          that.outClcick(
-            that.outputdata[0].output,
-            that.outputdata[0].classIndex
-          );
-        }).catch(function(error) {
-          console.log(error);
-        });
+        }
+        if(that.isActive>0)
+        {
+          let jiport;
+          if(that.type==0)
+          {
+            console.log("in");
+            jiport=that.inputdata;
+          }
+          else if(that.type==1)
+          {
+            console.log("out");
+            jiport=that.outputdata;
+          }
+          else if(that.type==2)
+          {
+            console.log("outin");
+            jiport=that.outputdata.concat(that.inputdata);
+          }
+          let i;
+          for( i=0;i<jiport.length;i++)
+          {
+            if(jiport[i].classIndex==that.isActive)
+            {
+              break;
+            }
+          }
+          if(i<jiport.length)
+          {
+            if(that.type==0||that.type==1)
+            {
+              if(that.type==0)
+              {
+                that.inClcick(jiport[i].input,jiport[i].classIndex);
+              }
+              else
+              {
+                that.outClcick(jiport[i].output,jiport[i].classIndex);
+              }
+            }
+            else if(that.type==2)
+            {
+              if(i<that.outputdata.length)
+              {
+                console.log("out1");
+                that.outClcick(jiport[i].output,jiport[i].classIndex);
+              }
+              else
+              {
+                console.log("in1");
+                that.inClcick(jiport[i].input,jiport[i].classIndex);
+              }
+            }
+          }
+          else
+          {
+            console.log("getProInfo 1");
+            that.SelectDefault();
+          }
+        }
+        else if(that.edidFile)
+        {
+
+        }
+        else
+        {
+          console.log("getProInfo 11");
+          that.SelectDefault();
+        }
+      }).catch(function(error) {
+        console.log(error);
+      });
     },
     getEdidInfo(type, index) 
     {
@@ -754,35 +885,131 @@ export default {
       let that = this;
       this.$axios.post("/cgi-bin/ligline.cgi", aoData).then(function(response) 
       {
-          if (response.data.status == "SUCCESS") 
-          {
-            that.selecting = false;
-            that.trueEdid = true;
-            that.EDIDinfo = response.data.echo.result.EDID;
-            that.EDIDHandle(that.EDIDinfo);
-          } 
-          else if (response.data.status == "ERROR") 
-          {
-            that.EDIDinfo = "";
-            that.selecting = false;
-            that.trueEdid = false;
-          }
-        }).catch(function(error) {
+        if (response.data.status == "SUCCESS") 
+        {
           that.selecting = false;
-          console.log(error);
-        });
+          that.trueEdid = true;
+          that.EDIDinfo = response.data.echo.result.EDID;
+          that.EDIDHandle(that.EDIDinfo);
+        } 
+        else if (response.data.status == "ERROR") 
+        {
+          that.EDIDinfo = "";
+          that.selecting = false;
+          that.trueEdid = false;
+        }
+      }).catch(function(error) {
+        that.selecting = false;
+        console.log(error);
+      });
     },
     truncate(arr) 
     {
       let m = arr.slice(0);
       m.splice(m.length - 1, 1);
       return m;
+    },
+    getOnline() 
+    {
+      console.log("获取端口在线状态");
+      let that = this;
+      let aoData = {
+        cmd: "PortInfo"
+      };
+      this.$axios.post("/cgi-bin/ligline.cgi", aoData).then(function(response) 
+        {
+          if (response.data.status == "SUCCESS") 
+          {
+            that.onlineInfo = response.data.echo.result.LinkStatus;
+            console.log("The Active is "+that.isActive); 
+            console.log("The type  is "+that.type); 
+            if(that.edidFile)
+            {
+              return;
+            }
+            if(that.style_bg)
+            {
+              if(that.type==0)
+              {
+                console.log("active in");
+                let i=0;
+                for(i=0;i<that.inputdata.length;i++)
+                {
+                  if(that.inputdata[i].classIndex==that.isActive)
+                  {
+                    break;
+                  }
+                }
+                if(i<that.inputdata.length)
+                {
+                  that.inClcick(that.inputdata[i].input,that.inputdata[i].classIndex);
+                }
+                else
+                {
+                  that.SelectDefault();
+                }
+              }
+              else if(that.type==1)
+              {
+                //console.log("active out");
+                //console.log("that.onlineInfo[that.isActive-1] "+that.onlineInfo.length);
+                if(that.isActive>0&&that.onlineInfo.length>0&& (that.onlineInfo[that.isActive-1].LinkStatus))
+                {
+                  let i=0;
+                  for(i=0;i<that.outputdata.length;i++)
+                  {
+                    if(that.outputdata[i].classIndex==that.isActive)
+                    {
+                      break;
+                    }
+                  }
+                  if(i<that.outputdata.length)
+                  {
+                    that.outClcick(that.outputdata[i].output,that.outputdata[i].classIndex);
+                  }
+                  else
+                  {
+                    that.SelectDefault();
+                  }
+                }
+                else
+                {
+                  console.log("This is Error");
+                  that.trueEdid=false;
+                }
+              }
+
+            }   
+          } 
+          else if (response.data.status == "ERROR") 
+          {
+          }
+        }).catch(function(error) {
+          console.log(error);
+        });
+    },
+    SelectDefault(){
+      console.log("SelectDefault");
+      if(this.outputdata.length>0)
+      {
+        this.outClcick(this.outputdata[0].output,this.outputdata[0].classIndex);
+      }
+      else if(this.inputdata.length>0)
+      {
+        this.inClcick(this.inputdata[0].input,this.inputdata[0].classIndex);
+      }
     }
   },
   created() {
-    this.getProInfo();
   },
-  mounted() {}
+  mounted() {
+    this.getProInfo();
+    this.getOnline();
+    let that=this;
+    window.GetPortOnline=setInterval(function() {
+      that.getOnline();
+    }, 3000);
+  }
 };
 </script>
 

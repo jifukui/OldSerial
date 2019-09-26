@@ -3,7 +3,7 @@
         <div class="box">
             <div class="logo"></div>
             <div class="content">
-                <p class="font30 coBlue">WEB VERSION 1.0.4</p>
+                <p class="font30 coBlue">WEB VERSION 1.0.6</p>
                 <p class="font18">KRAMER ELECTRONICS LTD.</p>
                 <p>3 Am Veolamo st.Jerusalem, 9546303</p>
                 <p>Tel: +972-73-265-0200</p>

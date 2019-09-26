@@ -99,6 +99,7 @@ export default {
       onegrogress: 0,
       onegrogressOne: 0,
       pageload:false,
+      errornum:0
     };
   },
   components: {
@@ -115,7 +116,17 @@ export default {
       this.upgradeStatus = this.$store.state.upgradeLoading;
       if (this.$store.state.upgradeLoading == true) 
       {
+        /**开始升级 */
         this.getUpgrade();
+      }
+      else
+      {
+        console.log("window.jifukuiupgradesetInterval "+ window.jifukuiupgradesetInterval);
+        if(window.jifukuiupgradesetInterval)
+        {
+          console.log("Close");
+          window.clearInterval(window.jifukuiupgradesetInterval);
+        }
       }
     },
     "$store.state.upgradeDeviceLoading": function() {
@@ -159,9 +170,37 @@ export default {
     getUpgrade() {
       let that = this;
       let num = that.$store.state.upgradeNumbers;
+      that.Sumsize=0;
       that.onegrogress = parseInt(100 / num);
-      that.onegrogressOne = parseInt(that.onegrogress / 4);
+      that.onegrogressOne = parseInt(0);
       that.fileGrogress = that.onegrogressOne;
+      that.jifukuivalue=0;
+      console.log("that.$store.state.JiFileSize "+that.$store.state.JiFileSize);
+      let val=0;
+      console.log("window.jifukuiupgradesetInterval "+ window.jifukuiupgradesetInterval);
+      console.log("that.$store.state.upgradeNumbers "+that.$store.state.upgradeNumbers);
+      
+      window.jifukuiupgradesetInterval = setInterval(function() 
+      {
+        console.log("Set UP "+that.$store.state.upgradeNumber);
+        if(that.Sumsize<that.$store.state.JiFileSize)
+        {
+          let value=(that.Sumsize*99)/(that.$store.state.JiFileSize*that.$store.state.upgradeNumbers);
+          console.log("The value is "+value);
+          //that.jifukuivalue=parseInt(value);
+          that.fileGrogress=parseInt(that.jifukuivalue+value);
+          that.Sumsize+=2000;
+          //console.log("that.fileGrogress "+that.fileGrogress);
+          //console.log("that.Sumsize "+that.Sumsize);
+          //console.log("that.$store.state.upgradeNumbers "+that.$store.state.upgradeNumbers);
+          //console.log("The this.onegrogressOne "+that.fileGrogress);
+          //console.log("that.$store.state.JiFileSize "+that.$store.state.JiFileSize);
+        }
+        else
+        {
+         
+        }
+      }, 1200);
     },
     getDeviceUpgrade() {
       let that = this;
@@ -172,11 +211,22 @@ export default {
       }, 1500);
     },
     goGrogress(num) {
+      this.Sumsize=0;
       let goGrogressNum = this.onegrogress * num + this.onegrogressOne;
-      if (goGrogressNum <= 100) {
+      /**当前升级的阶段 */
+      this.jifukuivalue=goGrogressNum;
+      if (goGrogressNum <= 100) 
+      {
         this.fileGrogress = goGrogressNum;
-      } else {
-        this.fileGrogress = this.onegrogress * num;
+      } 
+      else 
+      {
+        if(window.jifukuiupgradesetInterval)
+        {
+          window.clearInterval(window.jifukuiupgradesetInterval);
+          console.log("Close");
+        }
+        this.fileGrogress = 100;
       }
     },
     changeNavInfo: function(data) {
@@ -187,7 +237,7 @@ export default {
       }
     },
     getMatrixStatus(str) {
-      console.log("获取矩阵的状态信息")
+      console.log("获取矩阵的状态信息 "+this.errornum)
       let that = this;
       if (that.isGetStatus == true) {
         let aoData = {
@@ -197,6 +247,7 @@ export default {
           .post("/cgi-bin/ligline.cgi", aoData)
           .then(function(response) 
           {
+            that.errornum=0;
             if (response.data.status == "SUCCESS") 
             {
               that.loading = false;
@@ -207,7 +258,6 @@ export default {
               }
               that.moudelInfo = response.data.echo.result.name;
               that.$store.state.portNumber =response.data.echo.result.PortNumber;
-              console.log("the check length is "+that.$store.state.VideoALLChecked.length);
               if(that.$store.state.VideoALLChecked.length==0)
               {
                 for(let i=0;i<=that.$store.state.portNumber;i++)
@@ -217,24 +267,12 @@ export default {
               }
               that.$store.state.sn = response.data.echo.result.sn;
               that.$store.state.version = response.data.echo.result.version;
-              document.title = that.moudelInfo;
-              if (str) 
-              {
-              } 
-              else 
-              {
-                window.getMatrixInterval = setInterval(function() {
-                  that.getMatrixStatus("check");
-                }, 60000);
-              }
+              document.title = that.moudelInfo;    
             } 
-            else if (response.data.status == "ERROR") 
-            {
-              that.getMatrixStatus();
-            }
-          })
-          .catch(function(error) {
-            if (str == "check") 
+          }).catch(function(error) {
+            that.errornum++;
+            console.log("catch "+str);
+            if (that.errornum==15) 
             {
               that.$alert("Network error", "Prompt information", {
                 confirmButtonText: "OK",
@@ -243,9 +281,6 @@ export default {
                 }
               });
             } 
-            else {
-              that.getMatrixStatus();
-            }
             console.log(error);
           });
       }
@@ -262,6 +297,9 @@ export default {
         "System Exception！Please check the network connection or restart the matrix.";
     }, 60000);
     that.getMatrixStatus();
+    window.getMatrixInterval = setInterval(function() {
+      that.getMatrixStatus("jifukui");
+    }, 6000);
   }
 };
 </script>

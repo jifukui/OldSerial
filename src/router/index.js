@@ -47,6 +47,10 @@ router.beforeEach((to, from, next) => {
   if (window.getDeviceInterval) {
     window.clearInterval(window.getDeviceInterval);
   }
+  if(window.GetPortOnline)
+  {
+    window.clearInterval(window.GetPortOnline);
+  }
   next();
 })
 export default router

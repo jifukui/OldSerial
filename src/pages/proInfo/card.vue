@@ -152,14 +152,14 @@ export default {
       let ext = this.file.name.substr(index + 1);
       let extUpperCase = ext.toUpperCase();
       this.$store.state.JiFileSize=this.file.size;
-      console.log("the file size is "+that.$store.state.JiFileSize);
+      console.log("the file size is "+this.$store.state.JiFileSize);
       if (size <= 0) 
       {
         this.$alert("The appendix size can not be 0M！", "Prompt information", {
           confirmButtonText: "OK",
           callback: action => {
-            that.uploading = false;
-            that.uploadedFiles = ""
+            this.uploading = false;
+            this.uploadedFiles = ""
           }
         });
         return false;
@@ -170,8 +170,8 @@ export default {
         {
           confirmButtonText: "OK",
           callback: action => {
-            that.uploading = false;
-            that.uploadedFiles = ""
+            this.uploading = false;
+            this.uploadedFiles = "";
           }
         });
         return false;
@@ -216,12 +216,14 @@ export default {
         else 
         {
             console.log("The value is " + msg.data.status);
+            that.uploading = false;
+            that.uploadedFiles = ""
         }
       }).catch(function(error) {
            console.log(error);
         });
     },
-    //开始升级
+    //解压文件
     isDecompression() {
       this.decompressionFileName = "";
       let index = this.fileName.lastIndexOf(".");
@@ -360,6 +362,7 @@ export default {
                   return false;
                 }
                 for (let j = 0; j < fileNameSlotArr.length; j++)
+                {
                     if (that.cardList[i].type == fileNameSlotArr[j]) 
                     {
                       isTrue = true;
@@ -383,6 +386,7 @@ export default {
                   {
                     that.Upgrade(that.decompressionFileName);
                   }
+                }
               }
             }
           } 
@@ -444,68 +448,36 @@ export default {
         }
         let upgradeArr = [];
         if (fileNameArr[0].indexOf("OUT") != -1) 
-        {
-          if (fileNameSlotArr.length == 1) 
+        { 
+          for (let i = 0; i < this.cardList.length; i++) 
           {
-            for (let i = 0; i < this.cardList.length; i++) 
+            if (this.cardList[i].Direction == "Out") 
             {
-              if (
-                this.cardList[i].Direction == "Out" &&
-                this.cardList[i].type == fileNameSlotArr[0]
-              ) 
+              for (let j = 0; j < fileNameSlotArr.length; j++) 
               {
-                upgradeArr.push(this.cardList[i]);
-                this.selectCardUpgradeArr.push(this.cardList[i].slot);
-              }
-            }
-          } 
-          else 
-          {
-            for (let i = 0; i < this.cardList.length; i++) 
-            {
-              if (this.cardList[i].Direction == "Out") 
-              {
-                for (let j = 0; j < fileNameSlotArr.length; j++) 
+                if (this.cardList[i].type == fileNameSlotArr[j]) 
                 {
-                  if (this.cardList[i].type == fileNameSlotArr[j]) 
-                  {
-                    upgradeArr.push(this.cardList[i]);
-                    this.selectCardUpgradeArr.push(this.cardList[i].slot);
-                  }
+                  upgradeArr.push(this.cardList[i]);
+                  this.selectCardUpgradeArr.push(this.cardList[i].slot);
                 }
               }
             }
           }
         } 
         else if (fileNameArr[0].indexOf("IN") != -1) 
-        {
-          if (fileNameSlotArr.length == 1) 
+        { 
+          console.log("IN this.cardList.length "+this.cardList.length);
+          for (let i = 0; i < this.cardList.length; i++) 
           {
-            for (let i = 0; i < this.cardList.length; i++) 
+            console.log("type is "+ this.cardList[i].type+ "dir is "+this.cardList[i].Direction);
+            if (this.cardList[i].Direction == "In") 
             {
-              if (
-                this.cardList[i].Direction == "In" &&
-                this.cardList[i].type == fileNameSlotArr[0]
-              ) 
+              for (let j = 0; j < fileNameSlotArr.length; j++) 
               {
-                upgradeArr.push(this.cardList[i]);
-                this.selectCardUpgradeArr.push(this.cardList[i].slot);
-              }
-            }
-          } 
-          else 
-          {
-            for (let i = 0; i < this.cardList.length; i++) 
-            {
-              if (this.cardList[i].Direction == "In") 
-              {
-                for (let j = 0; j < fileNameSlotArr.length; j++) 
+                if (this.cardList[i].type == fileNameSlotArr[j]) 
                 {
-                  if (this.cardList[i].type == fileNameSlotArr[j]) 
-                  {
-                    upgradeArr.push(this.cardList[i]);
-                    this.selectCardUpgradeArr.push(this.cardList[i].slot);
-                  }
+                  upgradeArr.push(this.cardList[i]);
+                  this.selectCardUpgradeArr.push(this.cardList[i].slot);
                 }
               }
             }
@@ -513,9 +485,10 @@ export default {
         }
         this.dialogFormVisible = true;
         this.upgardeCardArr = upgradeArr;
-        console.log(fileNameArr);
-        console.log(upgradeArr);
-        console.log(this.selectCardUpgradeArr);
+        console.log("fileNameArr "+fileNameArr);
+        console.log("upgradeArr "+upgradeArr);
+        console.log("fileNameSlotArr "+fileNameSlotArr);
+        console.log("this.selectCardUpgradeArr "+this.selectCardUpgradeArr);
       } 
       else 
       {
@@ -525,7 +498,7 @@ export default {
     // 确认开始升级
     selectCardUpgrade() 
     {
-      console.log(this.selectCardUpgradeArr);
+      console.log("this.selectCardUpgradeArr "+this.selectCardUpgradeArr);
       if (this.selectCardUpgradeArr.length == 0) 
       {
         this.$alert(
@@ -794,7 +767,9 @@ export default {
             }
             else
             {
-              if(((index/4)%2)==0)
+              console.log("datta is "+((index/4)%2));
+              console.log("datta1 is "+((parseInt(index/4))%2));
+              if(((parseInt(index/4))%2)==0)
               {
                 card[index].Direction = "In";
               }
@@ -807,6 +782,7 @@ export default {
           }
           
         }
+        console.log("card list is "+JSON.stringify(that.cardList));
         if(that.cardList.length>0)
         {
           that.selectCardInfo(that.cardList[0].slot, that.cardList[0].type, that.cardList[0]);

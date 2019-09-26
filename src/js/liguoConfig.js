@@ -507,10 +507,10 @@ test.config.AV["VideoFreeze"] = {
     type: "list",
     sid: 40,
     data: [{
-        name: "On",
+        name: "ON",
         value: 1
     }, {
-        name: "Off",
+        name: "OFF",
         value: 0
     }]
 }
@@ -952,7 +952,7 @@ test.config.AV["RestoreSetup"] = {
     type: "slider",
     sid: 73,
     data: {
-        min: 0,
+        min: 1,
         max: 31
     }
 }
@@ -961,7 +961,7 @@ test.config.AV["RecallSetup"] = {
     type: "slider",
     sid: 74,
     data: {
-        min: 0,
+        min: 1,
         max: 31
     }
 }
@@ -1183,10 +1183,10 @@ test.config.AV["AudioLoudness"] = {
     sid: 93,
     data: [
         {
-            name: "Off",
+            name: "OFF",
             value: 0
         }, {
-            name: "On",
+            name: "ON",
             value: 1
         }
     ]
@@ -1197,10 +1197,10 @@ test.config.AV["AudioMixMode"] = {
     sid: 94,
     data: [
         {
-            name: "Off",
+            name: "OFF",
             value: 0
         }, {
-            name: "On",
+            name: "ON",
             value: 1
         }
     ]
@@ -1211,10 +1211,10 @@ test.config.AV["AudioStereoMode"] = {
     sid: 95,
     data: [
         {
-            name: "Off",
+            name: "OFF",
             value: 0
         }, {
-            name: "On",
+            name: "ON",
             value: 1
         }
     ]
@@ -1225,10 +1225,10 @@ test.config.AV["AudioTalkOver"] = {
     sid: 96,
     data: [
         {
-            name: "Off",
+            name: "OFF",
             value: 0
         }, {
-            name: "On",
+            name: "ON",
             value: 1
         }
     ]
@@ -1368,10 +1368,10 @@ test.config.AV["ARCEnable"] = {
     sid: 102,
     data: [
         {
-            name: "Off",
+            name: "OFF",
             value: 0
         }, {
-            name: "On",
+            name: "ON",
             value: 1
         }
     ]
@@ -1502,12 +1502,18 @@ test.config.AV["R-offset"] = {
 }
 test.config.AV["OUT_HSYNC_INVERT"] = {
     title: "VGA Out HSYNC invert",
-    type: "slider",
+    type: "list",
     sid: 152,
-    data: {
-        min: 0,
-        max: 1
-    }
+    data: [
+        {
+            name:"OFF",
+            value:0
+        },
+        {
+            name:"ON",
+            value:1
+        }
+    ]
 }
 test.config.AV["G-offset"] = {
     title: "VGA G-Offset",
@@ -1520,12 +1526,18 @@ test.config.AV["G-offset"] = {
 }
 test.config.AV["OUT_VSYNC_INVERT"] = {
     title: "VGA Out VSYNC invert",
-    type: "slider",
+    type: "list",
     sid: 153,
-    data: {
-        min: 0,
-        max: 1
-    }
+    data: [
+        {
+            name:"OFF",
+            value:0
+        },
+        {
+            name:"ON",
+            value:1
+        }
+    ]
 }
 test.config.AV["B-offset"] = {
     title: "VGA B-Offset",
