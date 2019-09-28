@@ -27,6 +27,7 @@
               <td width="65%">{{ item.value }}</td>
             </tr>
             <tr
+              v-show="setData.length>0"
               v-for="(item, index) in setData"
               :key="index"
               class="staticTr">
@@ -133,7 +134,7 @@
                 </el-button>
               </td>
             </tr>
-            <tr>
+            <tr v-show="isNeedSave">
               <td width="35%" style="font-size:14px;">Refresh:</td>
               <td width="65%">
                 <el-button
@@ -163,7 +164,7 @@ export default {
     return {
       slider: 50,
       portList: [],
-      isActive: -1,
+      isActive: this.$store.state.PortStatus,
       dir: "",
       content: "",
       staticData: [],
@@ -182,7 +183,7 @@ export default {
     ChangeFlag:function(value)
     {
       let that =this;
-      console.log("The data is "+JSON.stringify(value));
+      //console.log("The data is "+JSON.stringify(value));
       let i=0;
       for(i;i<value.length;i++)
       {
@@ -198,6 +199,17 @@ export default {
       else
       {
         that.HaveChange=false;
+      }
+    },
+    isActive:function(value)
+    {
+      if(value==="")
+      {
+        this.$store.state.PortStatus=-1;
+      }
+      else
+      {
+        this.$store.state.PortStatus=value;
       }
     }
   },
@@ -626,9 +638,6 @@ export default {
               message: errorstr,
               type: "warning"
             });
-            setTimeout(() => {
-              that.selectPortInfo(that.isActive);
-            }, 1000);
           }
           else
           {
@@ -636,7 +645,10 @@ export default {
               message: "Save success",
               type: "success"
             });
-          }  
+          } 
+          setTimeout(() => {
+            that.selectPortInfo(that.isActive);
+          }, 1000); 
           that.$store.state.PageLoading=false;
         } 
         else if (response.data.status == "ERROR") 
@@ -655,7 +667,58 @@ export default {
     },
     /**获取配置文件的同时获取端口的在线状态 */
     getOnline(list) {
+      //console.log("list is "+JSON.stringify(list));
+      //console.log("list is "+list.length);
       let that = this;
+      let listlen=list.length;
+      this.$axios.get("/configuration.json").then(function(response){
+        let datainfo= response.data.data.port;
+        let i=0;
+        let status;
+        let j=0;
+        //console.log("list is "+datainfo.in.length.length);
+        //console.log("list is "+datainfo.out.length.length);
+        for(i;i<listlen;i++)
+        {
+          if(i<datainfo.in.length)
+          {
+            status=datainfo.in[i].typeid;
+          }
+          else
+          {
+            //console.log("output "+i);
+            status=datainfo.out[i-datainfo.in.length].typeid;
+          }
+          if(status<0)
+          {
+            list.splice(j,1);
+          }
+          else
+          {
+            j++;
+          }
+        }
+        that.portList=JSON.parse(JSON.stringify(list));
+        if(that.portList.length>0)
+        {
+          if(that.isActive>0)
+          {
+            that.selectPortInfo(that.portList[that.isActive-1].portIndex);
+          }
+          else
+          {
+            that.selectPortInfo(that.portList[0].portIndex);
+          }
+        }
+        else
+        {
+          that.selectPortInfo(-1);
+        }
+      }).catch(function(error) {
+          console.log(error);
+        });
+        /*
+      console.log("list is "+JSON.stringify(list));
       let aoData = {
         cmd: "PortOnline"
       };
@@ -681,7 +744,14 @@ export default {
           that.portList=JSON.parse(JSON.stringify(list));
           if(that.portList.length>0)
           {
-            that.selectPortInfo(that.portList[0].portIndex);
+            if(that.isActive>0)
+            {
+              that.selectPortInfo(that.portList[that.isActive-1].portIndex);
+            }
+            else
+            {
+              that.selectPortInfo(that.portList[0].portIndex);
+            }
           }
           else
           {
@@ -693,7 +763,7 @@ export default {
         }
         }).catch(function(error) {
           console.log(error);
-        });
+        });*/
     },
     /**根据端口数量的不同获取不同的配置文件 */
     getJson() 

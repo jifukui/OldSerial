@@ -26,7 +26,9 @@ const state = {
   PageLoading:false,
   EDIDActive:-1,
   EDIDType:1,
-  EDIDDefault:true
+  EDIDDefault:true,
+  CardStatus:-1,
+  PortStatus:-1
 }
 
 

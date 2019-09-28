@@ -56,7 +56,7 @@ test.findMateData = function (name, val, openType, num) {
     } else if (num == '32') {
         test.config.AV["R-gain"].sid = 155;
     } else if (num == '64') {
-        test.config.AV["R-gain"].sid = 159;
+        test.config.AV["R-gain"].sid = 156;
     }
     data.info.type = AvType.type;
     data.info.id = AvType.title;
@@ -1942,7 +1942,6 @@ test.PortAvOK = function (portData, index,dir) {
     {
         if (portData[i].type != "static" || portData[i].type != "staticList") 
         {
-            var value = {};
             if (portData[i].type == "inputNum") 
             {
                 // portData[i].lastervalue = portData[i].lastervalue.replace(/[^a-zA-Z0-9_-]/g, '');

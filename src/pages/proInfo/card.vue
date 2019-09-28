@@ -41,7 +41,7 @@
         </div>
       </div>
     </div>
-    <div class="upgradeDiv">
+    <div class="upgradeDiv" v-show="cardList.length>0">
       <div class="information modify1">
         <span class="title modify">Firmware Upgrade</span>
         <div class="boxUpgrad">
@@ -124,7 +124,7 @@ export default {
       uploading: false,
       uploadStatus: "",
       resetN: 0,
-      isActive: -1,
+      isActive: this.$store.state.CardStatus,
       slotIndex: "",
       isCard: true,
       isUpgrade: false,
@@ -152,7 +152,7 @@ export default {
       let ext = this.file.name.substr(index + 1);
       let extUpperCase = ext.toUpperCase();
       this.$store.state.JiFileSize=this.file.size;
-      console.log("the file size is "+this.$store.state.JiFileSize);
+      //console.log("the file size is "+this.$store.state.JiFileSize);
       if (size <= 0) 
       {
         this.$alert("The appendix size can not be 0M！", "Prompt information", {
@@ -483,8 +483,29 @@ export default {
             }
           }
         }
-        this.dialogFormVisible = true;
+        
+        
         this.upgardeCardArr = upgradeArr;
+        if(this.upgardeCardArr.length==0)
+        {
+          this.$alert(
+            "Documents do not match the module card and cannot be upgraded",
+            "Prompt information",
+            {
+              confirmButtonText: "OK",
+              callback: action => {
+                this.uploadedFiles="";
+                this.uploading=false;
+              }
+            }
+          );
+          return false;
+        }
+        else
+        {
+          this.dialogFormVisible = true;
+        }
+        console.log("upgardeCardArr "+this.upgardeCardArr.length);
         console.log("fileNameArr "+fileNameArr);
         console.log("upgradeArr "+upgradeArr);
         console.log("fileNameSlotArr "+fileNameSlotArr);
@@ -543,6 +564,7 @@ export default {
         }
         console.log(fileArr);
         this.$store.state.upgradeNumber = -1;
+        window.clearInterval(window.getMatrixInterval);
         this.$store.state.upgradeLoading = true;
         this.$store.state.upgradeNumbers = fileArr.length - 1;
         this.upgardeFile(fileArr);
@@ -572,8 +594,14 @@ export default {
       else 
       {
         this.upgradeNum = 0;
-        this.$store.state.upgradeNumber = -2;
-        console.log("cccc:" + this.$store.state.upgradeNumber);
+        setTimeout(() => {
+          this.getCardList();
+          setTimeout(() => {
+            this.$store.state.upgradeNumber = -2;
+            console.log("cccc:" + this.$store.state.upgradeNumber);
+          }, 2000);
+        }, 3000);
+        
       }
     },
     upgardeCard(oldfile, newfile, arr) 
@@ -709,6 +737,7 @@ export default {
     {
       console.log("The index is "+index);
       this.isActive = index;
+      this.$store.state.CardStatus=index;
       if (status >= 0) 
       {
         this.isCard = true;
@@ -767,8 +796,8 @@ export default {
             }
             else
             {
-              console.log("datta is "+((index/4)%2));
-              console.log("datta1 is "+((parseInt(index/4))%2));
+              //console.log("datta is "+((index/4)%2));
+              //console.log("datta1 is "+((parseInt(index/4))%2));
               if(((parseInt(index/4))%2)==0)
               {
                 card[index].Direction = "In";
@@ -782,10 +811,17 @@ export default {
           }
           
         }
-        console.log("card list is "+JSON.stringify(that.cardList));
+        //console.log("card list is "+JSON.stringify(that.cardList));
         if(that.cardList.length>0)
         {
-          that.selectCardInfo(that.cardList[0].slot, that.cardList[0].type, that.cardList[0]);
+          if(that.isActive>0)
+          {
+            that.selectCardInfo(that.cardList[that.isActive-1].slot, that.cardList[that.isActive-1].type, that.cardList[that.isActive-1]);
+          }
+          else
+          {
+            that.selectCardInfo(that.cardList[0].slot, that.cardList[0].type, that.cardList[0]);
+          }
         }
         else
         {

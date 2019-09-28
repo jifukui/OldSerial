@@ -261,13 +261,19 @@ export default {
       } 
       else 
       {
-        if(this.onlineInfo.length>0&&(!this.onlineInfo[classIndex-1].Linkstatus))
+        console.log("index "+classIndex);
+        console.log("length "+this.onlineInfo.length);
+        if(this.onlineInfo.length==0||this.onlineInfo.length>0&&(!this.onlineInfo[classIndex-1].Linkstatus))
         {
+          console.log("that is not online");
+          this.EDIDData="";
           this.trueEdid=false;
           return ;
         }
+        console.log("that is online");
         this.type = 1;
         let that = this;
+        console.log("Get now Output EDID");
         this.$axios.get("/configuration.json").then(response => {
             let proVInfo = response.data.data.port;
             for (let j = 0; j < proVInfo.out.length; j++) 
@@ -534,6 +540,10 @@ export default {
           {
             that.selecting = false;
             that.copyBtn = "COPY";
+            that.$store.state.PageLoading=false;
+            window.GetPortOnline=setInterval(function() {
+              that.getOnline();
+            }, 3000);
           }, 2000);
         }
       }
@@ -735,9 +745,11 @@ export default {
     },
     EDIDHandle(data) 
     {
+      console.log("Handle EDID");
       let that = this;
       if(that.EDIDData!==data)
       {
+        console.log("Have Different");
         that.EDIDData=data;
         if (that.$EDID.setEdidData(data) == "errorEDID") 
         {
@@ -953,7 +965,7 @@ export default {
               {
                 //console.log("active out");
                 //console.log("that.onlineInfo[that.isActive-1] "+that.onlineInfo.length);
-                if(that.isActive>0&&that.onlineInfo.length>0&& (that.onlineInfo[that.isActive-1].LinkStatus))
+                if(that.isActive>0&&that.onlineInfo.length>0&& (that.onlineInfo[that.isActive-1].Linkstatus))
                 {
                   let i=0;
                   for(i=0;i<that.outputdata.length;i++)
@@ -975,6 +987,7 @@ export default {
                 else
                 {
                   console.log("This is Error");
+                  that.EDIDData="";
                   that.trueEdid=false;
                 }
               }

@@ -41,7 +41,7 @@ checkInp.fnValidateIPAddress = function (ipInput) {
     }
 }
 checkInp.fnValidateName = function (nameInput) {
-    var re = /^[a-zA-Z]{1}\w{0,14}$/;
+    var re = /^[a-zA-Z]{1}[a-zA-Z0-9-_]{0,13}[a-zA-Z0-9]{1}$/;
     if (re.test(nameInput)) 
     {
         return true;

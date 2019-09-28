@@ -127,6 +127,10 @@ export default {
           console.log("Close");
           window.clearInterval(window.jifukuiupgradesetInterval);
         }
+        let that=this;
+        window.getMatrixInterval = setInterval(function() {
+          that.getMatrixStatus("jifukui");
+        }, 6000);
       }
     },
     "$store.state.upgradeDeviceLoading": function() {
@@ -141,18 +145,18 @@ export default {
       {
         if (newValue == -2) 
         {
-          console.log("aaaa");
+          //console.log("aaaa");
           this.fileGrogress = 100;
           this.$store.state.upgradeLoading = false;
           this.upgradeStatus = this.$store.state.upgradeLoading;
         }
         else if (newValue == -1) 
         {
-          console.log("-1-1-1-1");
+          //console.log("-1-1-1-1");
         } 
         else 
         {
-          console.log("bbbb");
+          //console.log("bbbb");
           this.goGrogress(this.$store.state.upgradeNumber);
         }
       },
@@ -160,8 +164,8 @@ export default {
     },
     "$store.state.PageLoading":function(value)
     {
-      console.log("Hvae change load");
-      console.log("Value is "+value)
+      //console.log("Hvae change load");
+      //console.log("Value is "+value)
       this.pageload=value; 
     }
   },
@@ -189,6 +193,10 @@ export default {
           console.log("The value is "+value);
           //that.jifukuivalue=parseInt(value);
           that.fileGrogress=parseInt(that.jifukuivalue+value);
+          if(that.fileGrogress>100)
+          {
+            that.fileGrogress=100;
+          }
           that.Sumsize+=2000;
           //console.log("that.fileGrogress "+that.fileGrogress);
           //console.log("that.Sumsize "+that.Sumsize);
@@ -224,20 +232,23 @@ export default {
         if(window.jifukuiupgradesetInterval)
         {
           window.clearInterval(window.jifukuiupgradesetInterval);
-          console.log("Close");
+          //console.log("Close");
         }
         this.fileGrogress = 100;
       }
     },
     changeNavInfo: function(data) {
-      if (data == "close_nav") {
+      if (data == "close_nav") 
+      {
         this.selectIndex = 0;
-      } else {
+      } 
+      else 
+      {
         this.selectIndex = 1;
       }
     },
     getMatrixStatus(str) {
-      console.log("获取矩阵的状态信息 "+this.errornum)
+      //console.log("获取矩阵的状态信息 "+this.errornum)
       let that = this;
       if (that.isGetStatus == true) {
         let aoData = {

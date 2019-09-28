@@ -152,7 +152,8 @@ export default {
     portSetInfo: {
       handler(newValue, oldValue) 
       {
-        console.log("have change");
+        this.ChangeFlag=new Array();
+        //console.log("have change");
         if(this.portSetInfo.Info.length==0)
         {
           this.status=false
@@ -171,7 +172,7 @@ export default {
           this.portSetInfo.dir
         );
         this.dataSet = this.$conf.PortInfoAv.info;
-        console.log("Set data is  "+JSON.stringify(this.dataSet));
+        //console.log("Set data is  "+JSON.stringify(this.dataSet));
       },
       immediate: true,
       deep: true
@@ -179,7 +180,7 @@ export default {
     ChangeFlag:function(value)
     {
       let that =this;
-      console.log("The data is "+JSON.stringify(value));
+      //console.log("The data is "+JSON.stringify(value));
       let i=0;
       for(i;i<value.length;i++)
       {
@@ -258,6 +259,7 @@ export default {
         );
         return false;
       }
+      console.log("data.Data.length "+data.Data.length)
       if (data.Data.length == 0) 
       {
         that.$alert("Save success", "Prompt information", {
@@ -266,16 +268,16 @@ export default {
             that.ChangeFlag=new Array();
           }
         });
-        that.$emit("closePage", false);
-        that.$conf.PortCancel();
+        //that.$emit("closePage", false);
+        //that.$conf.PortCancel();
         return false;
       }
       that.ChangeFlag=new Array();
       that.$store.state.PageLoading=true;
       console.log("The data is " + JSON.stringify(data));
       this.$axios.post("/cgi-bin/ligline.cgi", data).then(function(response) 
-        {
-          that.$conf.PortInfoAv.info=JSON.parse(JSON.stringify(that.$conf.BasePortInfo.info));
+      {
+        that.$conf.PortInfoAv.info=JSON.parse(JSON.stringify(that.$conf.BasePortInfo.info));
         that.setData=that.$conf.PortInfoAv.info;
         if (response.data.status == "SUCCESS") 
         {
@@ -301,9 +303,6 @@ export default {
               message: errorstr,
               type: "warning"
             });
-            setTimeout(() => {
-              that.refresh();
-            }, 1000);
           }
           else
           {
@@ -311,8 +310,14 @@ export default {
               message: "Save success",
               type: "success"
             });
-          }  
-          that.$store.state.PageLoading=false;
+          } 
+          setTimeout(() => {
+            that.refresh();
+            setTimeout(() => {
+              that.$store.state.PageLoading=false;
+            }, 1000);
+          }, 1000); 
+          
         } 
         else if (response.data.status == "ERROR") 
         {
@@ -432,15 +437,6 @@ export default {
         errorstr="Device factory reset failed";
       }
       let that = this;
-      let savedir = "";
-      if (dir == "in") 
-      {
-        savedir = 0;
-      } 
-      else 
-      {
-        savedir = 1;
-      }
       that.$confirm(confirmValue, "Prompt information", {
           confirmButtonText: "Ok",
           cancelButtonText: "Cancel",
@@ -455,7 +451,7 @@ export default {
                 index: that.index,
                 sid: 36,
                 value: info,
-                dir: savedir
+                dir: dir
               }
             ]
           };
@@ -495,9 +491,34 @@ export default {
         });
     }
   },
-  created() {},
+  beforeCreate()
+  {
+    console.log("beforeCreate");
+  },
+  created() {
+    console.log("creat");
+  },
+  beforeMount(){
+    console.log("beforeMount");
+  },
   mounted() {
-    console.log(this.portSetInfo.Setting);
+    //console.log(this.portSetInfo.Setting);
+    console.log("mount");
+  },
+  updated(){
+    console.log("updated");
+  },
+  beforeDestroy(){
+    console.log("beforeDestroy");
+  },
+  destroyed(){
+    console.log("destroyed");
+  },
+  activated(){
+    console.log("activated");
+  },
+  deactivated(){
+    console.log("deactivated");
   }
 };
 </script>
