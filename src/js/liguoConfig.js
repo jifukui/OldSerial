@@ -56,7 +56,7 @@ test.findMateData = function (name, val, openType, num) {
     } else if (num == '32') {
         test.config.AV["R-gain"].sid = 155;
     } else if (num == '64') {
-        test.config.AV["R-gain"].sid = 156;
+        test.config.AV["R-gain"].sid = 159;
     }
     data.info.type = AvType.type;
     data.info.id = AvType.title;

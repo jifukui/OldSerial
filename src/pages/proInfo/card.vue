@@ -781,7 +781,6 @@ export default {
       let that = this;
       this.$axios.get("/configuration.json").then(response => {
         let card= response.data.data.card;
-        //console.log(JSON.stringify(card));
         for (let index = 0; index < 17; index++) 
         {
           if(card[index].name=="unknown")
@@ -796,8 +795,6 @@ export default {
             }
             else
             {
-              //console.log("datta is "+((index/4)%2));
-              //console.log("datta1 is "+((parseInt(index/4))%2));
               if(((parseInt(index/4))%2)==0)
               {
                 card[index].Direction = "In";
@@ -811,12 +808,27 @@ export default {
           }
           
         }
-        //console.log("card list is "+JSON.stringify(that.cardList));
         if(that.cardList.length>0)
         {
           if(that.isActive>0)
           {
-            that.selectCardInfo(that.cardList[that.isActive-1].slot, that.cardList[that.isActive-1].type, that.cardList[that.isActive-1]);
+            let i=0;
+            for(i;i<that.cardList.length;i++)
+            {
+              if(that.cardList[i].slot==that.isActive)
+              {
+                break;
+              }
+            }
+            if(i<that.cardList.length)
+            {
+              that.selectCardInfo(that.isActive, that.cardList[i].type, that.cardList[i]);
+            }
+            else
+            {
+              that.selectCardInfo(that.cardList[0].slot, that.cardList[0].type, that.cardList[0]);
+            }
+            
           }
           else
           {

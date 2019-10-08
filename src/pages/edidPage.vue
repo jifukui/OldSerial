@@ -261,8 +261,9 @@ export default {
       } 
       else 
       {
-        console.log("index "+classIndex);
-        console.log("length "+this.onlineInfo.length);
+        //console.log("index "+classIndex);
+        //console.log("length "+this.onlineInfo.length);
+        this.type = 1;
         if(this.onlineInfo.length==0||this.onlineInfo.length>0&&(!this.onlineInfo[classIndex-1].Linkstatus))
         {
           console.log("that is not online");

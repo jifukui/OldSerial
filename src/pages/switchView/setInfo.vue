@@ -127,7 +127,6 @@
         >Exit</el-button
       >
     </div>
-    <!-- <h5 class="tc">{{data}}</h5> -->
   </div>
 </template>
 
@@ -153,7 +152,6 @@ export default {
       handler(newValue, oldValue) 
       {
         this.ChangeFlag=new Array();
-        //console.log("have change");
         if(this.portSetInfo.Info.length==0)
         {
           this.status=false
@@ -172,7 +170,6 @@ export default {
           this.portSetInfo.dir
         );
         this.dataSet = this.$conf.PortInfoAv.info;
-        //console.log("Set data is  "+JSON.stringify(this.dataSet));
       },
       immediate: true,
       deep: true
@@ -180,7 +177,6 @@ export default {
     ChangeFlag:function(value)
     {
       let that =this;
-      //console.log("The data is "+JSON.stringify(value));
       let i=0;
       for(i;i<value.length;i++)
       {
@@ -400,7 +396,7 @@ export default {
       that.ChangeFlag=data;
     },
     sliderchange(item,index) {
-      console.log("===============", Math.floor(item.lastervalue));
+      //console.log("===============", Math.floor(item.lastervalue));
       let that=this;
       item.lastervalue = Math.floor(item.lastervalue);
       if(item.lastervalue==item.oldvalue)
@@ -411,13 +407,13 @@ export default {
       {
         that.ChangeFlagData(index,true);
       }
-      console.log("silder data is "+JSON.stringify(item));
+      //console.log("silder data is "+JSON.stringify(item));
     },
     refresh()
     {
       this.ChangeFlag=new Array();
       this.$emit("SelectPort", this.index,this.portSetInfo.dir,this.portSetInfo.title,true);
-      console.log("refresh")
+      //console.log("refresh")
     },
     clickBtn(index, info, dir) 
     {
