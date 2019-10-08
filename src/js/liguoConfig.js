@@ -11,12 +11,12 @@ test.PortInfo = {
 test.BasePortInfo={
 
 }
-test.PortInitAv = function (value, type) {
+test.PortInitAv = function (value, type,num) {
     var valueAv = test.PortInfoAv = {};
     valueAv.info = [];
     for (let i = 0; i < value.length; i++) {
         let ht = "";
-        ht = test.findMateData(value[i].Name, value[i].Value, type);
+        ht = test.findMateData(value[i].Name, value[i].Value, type,num);
         //console.log(ht)
         if (ht == false) 
         {

@@ -505,11 +505,11 @@ export default {
         {
           this.dialogFormVisible = true;
         }
-        console.log("upgardeCardArr "+this.upgardeCardArr.length);
-        console.log("fileNameArr "+fileNameArr);
-        console.log("upgradeArr "+upgradeArr);
-        console.log("fileNameSlotArr "+fileNameSlotArr);
-        console.log("this.selectCardUpgradeArr "+this.selectCardUpgradeArr);
+        //console.log("upgardeCardArr "+this.upgardeCardArr.length);
+        //console.log("fileNameArr "+fileNameArr);
+        //console.log("upgradeArr "+upgradeArr);
+        //console.log("fileNameSlotArr "+fileNameSlotArr);
+        //console.log("this.selectCardUpgradeArr "+this.selectCardUpgradeArr);
       } 
       else 
       {

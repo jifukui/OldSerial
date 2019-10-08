@@ -93,7 +93,7 @@
             </el-button>
           </td>
         </tr>
-        <tr>
+        <tr v-show="dataSet.length!=0">
           <td width="35%" style="font-size:14px;">Refresh:</td>
           <td width="65%">
             <el-button

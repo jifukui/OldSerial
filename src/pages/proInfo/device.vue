@@ -921,15 +921,15 @@ export default {
             that.ckeckVal = true;
           }
           that.mac0 = response.data.data.communication.Ethernet[0].mac;
-          that.$refs.ipInp.value =response.data.data.communication.Ethernet[0].ip;
-          that.$refs.subnetMask.value =response.data.data.communication.Ethernet[0].mask;
-          that.$refs.gateway.value =response.data.data.communication.Ethernet[0].gate;
+          that.$refs.ipInp.value =that.SetIPAddress(response.data.data.communication.Ethernet[0].ip);
+          that.$refs.subnetMask.value =that.SetIPAddress(response.data.data.communication.Ethernet[0].mask);
+          that.$refs.gateway.value =that.SetIPAddress(response.data.data.communication.Ethernet[0].gate);
           that.$refs.tcp.value =response.data.data.communication.Ethernet[0].tcp;
           that.$refs.udp.value =response.data.data.communication.Ethernet[0].udp;
           that.$refs.nameInp.value = response.data.data.matrix.name;
           that.oldNameVal0 = JSON.parse(JSON.stringify(response.data.data.matrix.name));
           that.oldIpVal0 =that.SetIPAddress(JSON.parse(JSON.stringify(response.data.data.communication.Ethernet[0].ip))) ;
-          that.oldMaskVal0 = JSON.parse(JSON.stringify(response.data.data.communication.Ethernet[0].mask));
+          that.oldMaskVal0 =that.SetIPAddress(JSON.parse(JSON.stringify(response.data.data.communication.Ethernet[0].mask)));
           that.oldGateVal0 = that.SetIPAddress(JSON.parse(JSON.stringify(response.data.data.communication.Ethernet[0].gate)));
           that.oldTcpVal0 = JSON.parse(JSON.stringify(response.data.data.communication.Ethernet[0].tcp));
           that.oldUdpVal0 = JSON.parse(JSON.stringify(response.data.data.communication.Ethernet[0].udp));

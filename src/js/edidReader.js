@@ -355,9 +355,8 @@ EDID.GetCheck=function (dataArray) {
         }
         sum%=256;
         sum=0x100-sum;
-        CheckNum[i]=sum;
+        CheckNum[i]=sum%256;
     }
-    CheckNum[i]=sum%256;
     return CheckNum;
 };
 EDID.EDIDERR=function()

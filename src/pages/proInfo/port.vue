@@ -348,7 +348,7 @@ export default {
     /**选择端口的信息 */
     selectPortInfo(index) 
     {
-      console.log("The index is "+index);
+      //console.log("The index is "+index);
       this.ChangeFlag=new Array();
       let that = this;
       that.loading = true;
@@ -667,8 +667,6 @@ export default {
     },
     /**获取配置文件的同时获取端口的在线状态 */
     getOnline(list) {
-      //console.log("list is "+JSON.stringify(list));
-      //console.log("list is "+list.length);
       let that = this;
       let listlen=list.length;
       this.$axios.get("/configuration.json").then(function(response){
@@ -676,8 +674,6 @@ export default {
         let i=0;
         let status;
         let j=0;
-        //console.log("list is "+datainfo.in.length.length);
-        //console.log("list is "+datainfo.out.length.length);
         for(i;i<listlen;i++)
         {
           if(i<datainfo.in.length)
@@ -703,7 +699,7 @@ export default {
         {
           if(that.isActive>0)
           {
-            that.selectPortInfo(that.portList[that.isActive-1].portIndex);
+            that.selectPortInfo(that.isActive);
           }
           else
           {
@@ -717,53 +713,6 @@ export default {
       }).catch(function(error) {
           console.log(error);
         });
-        /*
-      console.log("list is "+JSON.stringify(list));
-      let aoData = {
-        cmd: "PortOnline"
-      };
-      this.$axios.post("/cgi-bin/ligline.cgi", aoData).then(function(response) 
-      {
-        if (response.data.status == "SUCCESS") 
-        {
-          let onlineInfo = response.data.echo.result.Data;
-          for (let j = 0; j < list.length; j++) 
-          {
-            for (let i = 0; i < onlineInfo.length; i++) 
-            {
-              if (list[j].portIndex == onlineInfo[i].PortIndex) 
-              {
-                list[j].OnlineStatus = onlineInfo[i].OnlineStatus;
-                if(onlineInfo[i].OnlineStatus==false)
-                {
-                  list.splice(j,1);
-                }
-              }
-            }
-          }
-          that.portList=JSON.parse(JSON.stringify(list));
-          if(that.portList.length>0)
-          {
-            if(that.isActive>0)
-            {
-              that.selectPortInfo(that.portList[that.isActive-1].portIndex);
-            }
-            else
-            {
-              that.selectPortInfo(that.portList[0].portIndex);
-            }
-          }
-          else
-          {
-
-          }
-        } 
-        else if (response.data.status == "ERROR") 
-        {
-        }
-        }).catch(function(error) {
-          console.log(error);
-        });*/
     },
     /**根据端口数量的不同获取不同的配置文件 */
     getJson() 
