@@ -29,9 +29,9 @@
           </td>
           <td width="35%" v-if="item.type === 'slider'">{{ item.id }}:</td>
           <td width="65%" v-if="item.type === 'slider'">
-            <div class="block" style="width:85%">
+            <div class="block fl" style="width:70%">
               <el-slider
-              style="width:90%"
+              style="width:80%"
               :min="item.value.min"
               :max="item.value.max"
               @change="sliderchange(item,index)"
@@ -40,7 +40,7 @@
               ></el-slider>
             </div>
             <input
-              style="width:12%"
+              style="width:16%"
               v-model="item.lastervalue"
               type="text"
               @keyup="silderInputInput(item,index)"
