@@ -57,13 +57,14 @@
               :inactive-text="item.value.off_text"
             ></el-switch>
           </td>
-          <td width="35%" v-if="item.type === 'inputNum'">{{ item.id }}:</td>
-          <td width="65%" v-if="item.type === 'inputNum'">
+          <td width="35%" v-if="item.type === 'inputnum'">{{ item.id }}:</td>
+          <td width="65%" v-if="item.type === 'inputnum'" :title="item.tooltip">
             <input
               type="text"
               v-text="item.oldvalue"
               v-model="item.lastervalue"
-              @blur="inpNum(item, item.value.min, item.value.max)"
+              @keyup="silderInputInput(item,index)"
+              @change="InputChange(item,index)"
             />
           </td>
           <td width="35%" v-if="item.type === 'inputOnlySetNum'">
@@ -333,7 +334,31 @@ export default {
     silderInputChange(item,index)
     {
       let that=this;
-      console.log("have change "+item.id);
+      //console.log("have change "+item.id);
+      let data;
+      data=parseInt(item.lastervalue);
+      if(item.lastervalue==item.oldvalue)
+      {
+        that.ChangeFlagData(index,false);
+      }
+      else
+      {
+        that.ChangeFlagData(index,true);
+      }
+      if(isNaN(data)||data<item.value.min||data>item.value.max)
+      {
+        //console.log("data error");
+      }
+      else
+      {
+        item.lastervalue=data;
+      }
+      //console.log("data is "+JSON.stringify(item));
+    },
+    InputChange(item,index)
+    {
+      let that=this;
+      //console.log("input have change "+item.id);
       let data;
       data=parseInt(item.lastervalue);
       if(item.lastervalue==item.oldvalue)
@@ -352,7 +377,7 @@ export default {
       {
         item.lastervalue=data;
       }
-      console.log("data is "+JSON.stringify(item));
+      //console.log("data is "+JSON.stringify(item));
     },
     silderInputInput(item,index)
     {

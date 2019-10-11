@@ -1307,6 +1307,7 @@ export default {
   }
   .checked {
     background: url(../../../static/img/yuan4.png) no-repeat;
+    cursor:no-drop;
   }
 }
 

@@ -9,7 +9,6 @@ test.PortInfoAv = {
 test.PortInfo = {
 }
 test.BasePortInfo={
-
 }
 test.PortInitAv = function (value, type,num) {
     var valueAv = test.PortInfoAv = {};
@@ -17,7 +16,6 @@ test.PortInitAv = function (value, type,num) {
     for (let i = 0; i < value.length; i++) {
         let ht = "";
         ht = test.findMateData(value[i].Name, value[i].Value, type,num);
-        //console.log(ht)
         if (ht == false) 
         {
             continue;
@@ -69,6 +67,15 @@ test.findMateData = function (name, val, openType, num) {
         case "staticList":
             {
                 data.info.oldvalue = val;
+                data.info.value = AvType.data;
+                break;
+            }
+        case "inputnum":
+            {
+                data.info.sid = AvType.sid;
+                data.info.oldvalue=val;
+                data.info.lastervalue=val;
+                data.info.tooltip=AvType.tooltip;
                 data.info.value = AvType.data;
                 break;
             }
@@ -949,8 +956,9 @@ test.config.AV["DPCP"] = {
 }
 test.config.AV["RestoreSetup"] = {
     title: "Save Timing",
-    type: "slider",
+    type: "inputnum",
     sid: 73,
+    tooltip:"1~31",
     data: {
         min: 1,
         max: 31
@@ -958,8 +966,9 @@ test.config.AV["RestoreSetup"] = {
 }
 test.config.AV["RecallSetup"] = {
     title: "Recall Timing",
-    type: "slider",
+    type: "inputnum",
     sid: 74,
+    tooltip:"1~31",
     data: {
         min: 1,
         max: 31
@@ -1942,33 +1951,46 @@ test.PortAvOK = function (portData, index,dir) {
     {
         if (portData[i].type != "static" || portData[i].type != "staticList") 
         {
-            if (portData[i].type == "inputNum") 
+            if (portData[i].type == "inputnum") 
             {
-                // portData[i].lastervalue = portData[i].lastervalue.replace(/[^a-zA-Z0-9_-]/g, '');
                 if (portData[i].lastervalue === "") 
                 {
-                    portData[i].lastervalue = portData.info[i].oldvalue;
+                    portData[i].lastervalue = portData[i].oldvalue;
+                }
+                if(portData[i].lastervalue<portData[i].value.min||portData[i].lastervalue>portData[i].value.max)
+                {
+                    if(portData[i].lastervalue==0)
+                    {
+
+                    }
+                    else
+                    {
+                        let error=portData[i].id+" Data Error"
+                        //console.log(error );
+                        data.ErrorText=error;
+                        break;
+                    }
                 }
             }
             else if(portData[i].type == "slider")
             {
-                console.log("The lastervalue is "+portData[i].lastervalue);
+                //console.log("The lastervalue is "+portData[i].lastervalue);
                 if (portData[i].lastervalue === "") 
                 {
-                    console.log("the "+portData[i].id +"is null ");
+                    //console.log("the "+portData[i].id +"is null ");
                     portData[i].lastervalue = portData[i].oldvalue;
                 }
                 if(portData[i].lastervalue<portData[i].value.min||portData[i].lastervalue>portData[i].value.max)
                 {
                     let error=portData[i].id+" Data Error"
-                    console.log(error );
+                    //console.log(error );
                     data.ErrorText=error;
                     break;
                 }
             }
             if (portData[i].oldvalue != portData[i].lastervalue) 
             {
-                console.log("have different");
+                //console.log("have different");
                 let ht = {
                     index: index,
                     sid: portData[i].sid,

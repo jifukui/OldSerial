@@ -71,7 +71,7 @@
             </p>
           </div>
           <div class="set_content_two_information" v-show="!trueEdid">
-            <p class="errorInfo">Error EDID</p>
+            <p class="errorInfo">{{ERRInfo}}</p>
           </div>
           <div class="clear"></div>
           <div class="set_content_one_box2">
@@ -179,7 +179,8 @@ export default {
       selecting: false,
       copyBtn: "COPY",
       onlineInfo:[],
-      EDIDData:null
+      EDIDData:null,
+      ERRInfo:"ERROR EDID"
     };
   },
   watch: {
@@ -261,14 +262,13 @@ export default {
       } 
       else 
       {
-        //console.log("index "+classIndex);
-        //console.log("length "+this.onlineInfo.length);
         this.type = 1;
         if(this.onlineInfo.length==0||this.onlineInfo.length>0&&(!this.onlineInfo[classIndex-1].Linkstatus))
         {
           console.log("that is not online");
           this.EDIDData="";
           this.trueEdid=false;
+          this.ERRInfo=output+" no load";
           return ;
         }
         console.log("that is online");
@@ -759,6 +759,7 @@ export default {
             callback: action => {}
           });
           that.trueEdid = false;
+          that.ERRInfo="ERROR EDID";
           return false;
         } 
         else 
@@ -934,17 +935,25 @@ export default {
           if (response.data.status == "SUCCESS") 
           {
             that.onlineInfo = response.data.echo.result.LinkStatus;
-            console.log("The Active is "+that.isActive); 
-            console.log("The type  is "+that.type); 
+            //console.log("The Active is "+that.isActive); 
+            //console.log("The type  is "+that.type); 
             if(that.edidFile)
             {
               return;
+            }
+            if(that.outputdata.length==0&&that.inputdata.length==0)
+            {
+              console.log("on port");
+              that.EDIDData="";
+              that.trueEdid=false;
+              that.ERRInfo="NO Port";
+              return ;
             }
             if(that.style_bg)
             {
               if(that.type==0)
               {
-                console.log("active in");
+                //console.log("active in");
                 let i=0;
                 for(i=0;i<that.inputdata.length;i++)
                 {
@@ -985,11 +994,15 @@ export default {
                     that.SelectDefault();
                   }
                 }
+                else if(that.isActive<0)
+                {
+                  that.SelectDefault();
+                }
                 else
                 {
-                  console.log("This is Error");
                   that.EDIDData="";
                   that.trueEdid=false;
+                  
                 }
               }
 

@@ -664,24 +664,31 @@ export default {
       let gateway =this.SetIPAddress(this.$refs.gateway.value) ;
       let tcp = this.$refs.tcp.value;
       let udp = this.$refs.udp.value;
-      console.log(ipaddr);
       this.ipCheck=this.$checkInp.fnValidateIPAddress(ipaddr);
       this.maskCheck=this.$checkInp.fnValidateMask(maskaddr);
       this.gatewayCheck=this.$checkInp.fnValidateGateway(gateway);
       this.tcpCheck=this.$checkInp.fnValidateIcp(tcp,udp);
       this.udpCheck=this.$checkInp.fnValidateUdp(udp,tcp);
-      this.nameCheck=this.$checkInp.fnValidateName(nameaddr)
+      this.nameCheck=this.$checkInp.fnValidateName(nameaddr);
       if (
         this.ipCheck &&
         this.maskCheck&&
         this.gatewayCheck&&
         this.tcpCheck&&
         this.udpCheck&&
-        this.nameCheck
+        this.nameCheck&&
+        ipaddr!=gateway
       ) 
       {
           let that = this;
           let setInfo = {};
+          /*if(that.ChangeFlag&0x0A&&ipaddr==gateway)
+          {
+            that.$message({
+              message: "IP address must different with Gateway address",
+              type: "warning"
+            });
+          }*/
           if(that.ChangeFlag&0xE)
           {
             setInfo.ip = ipaddr;
@@ -784,6 +791,14 @@ export default {
               console.log("Have nochangfe")
             }
           }
+        }
+        else
+        {
+          this.$alert("Parameter is incorrect!", "Prompt information", 
+          {
+            confirmButtonText: "OK",
+            callback: action => {}
+          });
         }
     },
     SetIPAddress(value)
