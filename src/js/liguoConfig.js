@@ -116,10 +116,10 @@ test.config.AV["ResolutionDetect"] = {
             name: "Auto",
             value: 0
         }, {
-            name: "Force",
+            name: "User Define",
             value: 1
         }, {
-            name: "Reset",
+            name: "Auto Adjust",
             value: 2
         }
     ]
@@ -133,10 +133,10 @@ test.config.AV["PhaseMode"] = {
             name: "Auto",
             value: 0
         }, {
-            name: "Force",
+            name: "User Define",
             value: 1
         }, {
-            name: "Reset",
+            name: "Auto Adjust",
             value: 2
         }
     ]
